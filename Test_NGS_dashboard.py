@@ -26,7 +26,7 @@ if selected_disease and gene_input:
 
         if not filtered_df.empty:
             st.success(f"Found {len(filtered_df)} matching comment(s):")
-            st.dataframe(filtered_df)
+            st.dataframe(filtered_df, use_container_width=True, hide_index=True)
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
     except Exception as e:
