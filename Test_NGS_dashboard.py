@@ -10,7 +10,7 @@ DISEASE_SHEETS = ['AML', 'ALL', 'Lymphoid', 'Myeloma', 'MDS', 'MPN', 'Other', 'G
 
 # Streamlit app
 st.title("Haem NGS Comments")
-st.markdown("Search for relevant gene comments by selecting a disease and entering one or more genes.")
+st.markdown("Search for relevant gene comments, panels and caveats.")
 
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
