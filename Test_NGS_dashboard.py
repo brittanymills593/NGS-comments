@@ -6,7 +6,7 @@ import os
 EXCEL_FILE = "NGS_comments_automation.xlsx"
 
 # List of disease sheet names (must match the sheet names in the Excel file)
-DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'Lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders', 'Other', 'Generic']
+DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders', 'Other', 'CHIP']
 
 # Streamlit app
 st.title("Haem NGS Comments")
