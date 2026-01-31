@@ -89,16 +89,20 @@ try:
     cnv_df = pd.read_excel(EXCEL_FILE, sheet_name="CNV", usecols="A:C")
     cnv_df.columns = ['Disease', 'Region', 'Comment']
 
-    # Input boxes for Disease and Region
-    disease_input = st.text_input("Enter Disease:")
-    region_input = st.text_input("Enter Region:")
+    # Get unique values for dropdowns
+    disease_options = [""] + cnv_df['Disease'].dropna().unique().tolist()
+    region_options = [""] + cnv_df['Region'].dropna().unique().tolist()
 
-    # Only search if both inputs are provided
-    if disease_input and region_input:
-        # Filter DataFrame based on both inputs
+    # Dropdowns for Disease and Region
+    selected_disease = st.selectbox("Select Disease:", disease_options)
+    selected_region = st.selectbox("Select Region:", region_options)
+
+    # Only search if both selections are made
+    if selected_disease and selected_region:
+        # Filter DataFrame based on selections
         result = cnv_df[
-            (cnv_df['Disease'].str.lower() == disease_input.lower()) &
-            (cnv_df['Region'].str.lower() == region_input.lower())
+            (cnv_df['Disease'] == selected_disease) &
+            (cnv_df['Region'] == selected_region)
         ]
 
         if not result.empty:
@@ -108,5 +112,6 @@ try:
             st.warning("No matching comment found.")
 except Exception as e:
     st.error(f"Error loading CNV data: {e}")
+
 
 
