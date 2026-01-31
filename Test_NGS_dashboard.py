@@ -79,3 +79,34 @@ try:
 except Exception as e:
     st.error(f"Error loading Caveats data: {e}")
 
+
+# --- CNV Lookup Section ---
+st.markdown("---")
+st.markdown("### CNV Lookup")
+
+try:
+    # Read columns A, B, C
+    cnv_df = pd.read_excel(EXCEL_FILE, sheet_name="CNV", usecols="A:C")
+    cnv_df.columns = ['Disease', 'Region', 'Comment']
+
+    # Input boxes for Disease and Region
+    disease_input = st.text_input("Enter Disease:")
+    region_input = st.text_input("Enter Region:")
+
+    # Only search if both inputs are provided
+    if disease_input and region_input:
+        # Filter DataFrame based on both inputs
+        result = cnv_df[
+            (cnv_df['Disease'].str.lower() == disease_input.lower()) &
+            (cnv_df['Region'].str.lower() == region_input.lower())
+        ]
+
+        if not result.empty:
+            st.success("Comment found:")
+            st.write(result.iloc[0]['Comment'])
+        else:
+            st.warning("No matching comment found.")
+except Exception as e:
+    st.error(f"Error loading CNV data: {e}")
+
+
