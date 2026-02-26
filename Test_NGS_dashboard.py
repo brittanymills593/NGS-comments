@@ -58,32 +58,23 @@ except Exception as e:
 
 # --- Caveats Lookup Section ---
 st.markdown("---")
-st.markdown("### Caveats Lookup (including CHIP)")
+st.markdown("### Caveats Lookup")
 
 try:
-    caveats_df = pd.read_excel(EXCEL_FILE, sheet_name="Caveats")
+    caveat_df = pd.read_excel(EXCEL_FILE, sheet_name="Caveats", usecols="A:B")
+    caveat_df.columns = ['Caveat', 'Comment']  # Adjust to your actual headers
 
-    # Clean column names (important if Excel has spaces)
-    caveats_df.columns = caveats_df.columns.str.strip()
+    caveat_terms = caveat_df['Caveat'].dropna().unique().tolist()
+    selected_caveat = st.selectbox("Select Caveat Term:", [""] + caveat_terms)
 
-    # Check expected columns
-    if "Caveats" in caveats_df.columns and "Comment" in caveats_df.columns:
+    if selected_caveat:
+        result = caveat_df[caveat_df['Caveat'] == selected_caveat]
 
-        caveat_names = [""] + sorted(caveats_df["Caveats"].dropna().unique().tolist())
-        selected_caveat = st.selectbox("Select Caveat Name:", caveat_names)
-
-        if selected_caveat:
-            result = caveats_df[caveats_df["Caveats"] == selected_caveat]
-
-            if not result.empty:
-                st.success("Caveat found:")
-                st.write(result.iloc[0]["Comment"])
-            else:
-                st.warning("No matching caveat found.")
-
-    else:
-        st.error("Expected columns 'Caveats' and 'Comment' not found in the sheet.")
-
+        if not result.empty:
+            st.success("Caveat comment found:")
+            st.write(result.iloc[0]['Comment'])
+        else:
+            st.warning("No matching caveat found.")
 except Exception as e:
     st.error(f"Error loading Caveats data: {e}")
 
