@@ -67,64 +67,38 @@ try:
 
     # Disease dropdown
     disease_options = [""] + sorted(cnv_df['Disease'].dropna().unique().tolist())
-    selected_disease = st.selectbox("Select Disease:", disease_options)
+    selected_disease = st.selectbox("Select Disease:", disease_options, key="disease")
 
-    # Filter regions based on selected disease
+    # Reset region when disease changes
+    if "last_disease" not in st.session_state:
+        st.session_state.last_disease = ""
+
+    if selected_disease != st.session_state.last_disease:
+        st.session_state.region = ""
+        st.session_state.last_disease = selected_disease
+
+    # Filter regions based on disease
     if selected_disease:
-        filtered_regions = cnv_df[cnv_df['Disease'] == selected_disease]['Region'].dropna().unique().tolist()
+        filtered_regions = cnv_df[cnv_df["Disease"] == selected_disease]["Region"].dropna().unique().tolist()
         region_options = [""] + sorted(filtered_regions)
     else:
         region_options = [""]
 
-    selected_region = st.selectbox("Select Region:", region_options)
+    selected_region = st.selectbox("Select Region:", region_options, key="region")
 
-    # Lookup only when both selected
+    # Lookup result
     if selected_disease and selected_region:
         result = cnv_df[
-            (cnv_df['Disease'] == selected_disease) &
-            (cnv_df['Region'] == selected_region)
+            (cnv_df["Disease"] == selected_disease) &
+            (cnv_df["Region"] == selected_region)
         ]
 
         if not result.empty:
             st.success("Comment found:")
-            st.write(result.iloc[0]['Comment'])
+            st.write(result.iloc[0]["Comment"])
         else:
             st.warning("No matching comment found.")
 
-except Exception as e:
-    st.error(f"Error loading CNV data: {e}")
-
-
-# --- CNV Lookup Section ---
-st.markdown("---")
-st.markdown("### CNV Lookup")
-
-try:
-    # Read columns A, B, C
-    cnv_df = pd.read_excel(EXCEL_FILE, sheet_name="CNV", usecols="A:C")
-    cnv_df.columns = ['Disease', 'Region', 'Comment']
-
-    # Get unique values for dropdowns
-    disease_options = [""] + cnv_df['Disease'].dropna().unique().tolist()
-    region_options = [""] + cnv_df['Region'].dropna().unique().tolist()
-
-    # Dropdowns for Disease and Region
-    selected_disease = st.selectbox("Select Disease:", disease_options)
-    selected_region = st.selectbox("Select Region:", region_options)
-
-    # Only search if both selections are made
-    if selected_disease and selected_region:
-        # Filter DataFrame based on selections
-        result = cnv_df[
-            (cnv_df['Disease'] == selected_disease) &
-            (cnv_df['Region'] == selected_region)
-        ]
-
-        if not result.empty:
-            st.success("Comment found:")
-            st.write(result.iloc[0]['Comment'])
-        else:
-            st.warning("No matching comment found.")
 except Exception as e:
     st.error(f"Error loading CNV data: {e}")
 
