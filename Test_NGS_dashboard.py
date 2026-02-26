@@ -6,7 +6,7 @@ import os
 EXCEL_FILE = "NGS_comments_automation.xlsx"
 
 # List of disease sheet names (must match the sheet names in the Excel file)
-DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders', 'Other', 'CHIP']
+DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders']
 
 # Streamlit app
 st.title("Haem NGS Comments")
@@ -51,6 +51,30 @@ try:
                 st.write(result.iloc[0]['Genes'])
             else:
                 st.warning("No matching panel found.")
+    else:
+        st.error("Expected columns 'Panel' and/or 'Genes' not found in the sheet.")
+except Exception as e:
+    st.error(f"Error loading Panel data: {e}")
+
+# --- Caveats Lookup Section ---
+st.markdown("---")
+st.markdown("### Caveats Lookup (including CHIP")
+
+try:
+    caveats_df = pd.read_excel(EXCEL_FILE, sheet_name="Caveats")  # Load all columns
+
+    # Make sure expected columns exist
+    if 'Caveats' in caveats_df.columns and 'Comment' in caveats_df.columns:
+        caveats_names = caveats_df['Panel'].dropna().unique().tolist()
+        selected_caveats = st.selectbox("Select Caveat Name:", [""] + caveats_names)
+
+        if selected_caveats:
+            result = caveats_df[panel_df['Caveatsl'] == selected_caveat]
+            if not result.empty:
+                st.success("Caveat found:")
+                st.write(result.iloc[0]['Caveat'])
+            else:
+                st.warning("No matching caveat found.")
     else:
         st.error("Expected columns 'Panel' and/or 'Genes' not found in the sheet.")
 except Exception as e:
