@@ -57,27 +57,42 @@ except Exception as e:
     st.error(f"Error loading Panel data: {e}")
 
 
-# --- Caveats Lookup Section ---
+# --- CNV Lookup Section ---
 st.markdown("---")
-st.markdown("### Caveats Lookup")
+st.markdown("### CNV Lookup")
 
 try:
-    caveat_df = pd.read_excel(EXCEL_FILE, sheet_name="Caveats", usecols="A:B")
-    caveat_df.columns = ['Caveat', 'Comment']  # Adjust to your actual headers
+    cnv_df = pd.read_excel(EXCEL_FILE, sheet_name="CNV", usecols="A:C")
+    cnv_df.columns = ['Disease', 'Region', 'Comment']
 
-    caveat_terms = caveat_df['Caveat'].dropna().unique().tolist()
-    selected_caveat = st.selectbox("Select Caveat Term:", [""] + caveat_terms)
+    # Disease dropdown
+    disease_options = [""] + sorted(cnv_df['Disease'].dropna().unique().tolist())
+    selected_disease = st.selectbox("Select Disease:", disease_options)
 
-    if selected_caveat:
-        result = caveat_df[caveat_df['Caveat'] == selected_caveat]
+    # Filter regions based on selected disease
+    if selected_disease:
+        filtered_regions = cnv_df[cnv_df['Disease'] == selected_disease]['Region'].dropna().unique().tolist()
+        region_options = [""] + sorted(filtered_regions)
+    else:
+        region_options = [""]
+
+    selected_region = st.selectbox("Select Region:", region_options)
+
+    # Lookup only when both selected
+    if selected_disease and selected_region:
+        result = cnv_df[
+            (cnv_df['Disease'] == selected_disease) &
+            (cnv_df['Region'] == selected_region)
+        ]
 
         if not result.empty:
-            st.success("Caveat comment found:")
+            st.success("Comment found:")
             st.write(result.iloc[0]['Comment'])
         else:
-            st.warning("No matching caveat found.")
+            st.warning("No matching comment found.")
+
 except Exception as e:
-    st.error(f"Error loading Caveats data: {e}")
+    st.error(f"Error loading CNV data: {e}")
 
 
 # --- CNV Lookup Section ---
