@@ -58,7 +58,7 @@ except Exception as e:
 
 # --- Caveats Lookup Section ---
 st.markdown("---")
-st.markdown("### Caveats Lookup")
+st.markdown("### Caveats Lookup (including CHIP")
 
 try:
     caveat_df = pd.read_excel(EXCEL_FILE, sheet_name="Caveats", usecols="A:B")
