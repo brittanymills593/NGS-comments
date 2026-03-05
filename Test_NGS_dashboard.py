@@ -9,11 +9,19 @@ EXCEL_FILE = "NGS_comments_automation.xlsx"
 DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders']
 
 # Streamlit app
-col1, col2 = st.columns([3.5,1.5])
+col1, col2 = st.columns([3.5, 1.5])
 
 with col1:
-    st.title("Haem NGS Comments")
-    st.markdown("Search for relevant gene comments, panels and caveats.")
+    # Dark purple title
+    st.markdown(
+        "<h1 style='color:#4B0082;'>Haem NGS Comments</h1>",
+        unsafe_allow_html=True
+    )
+    # Optional subtitle (can also be purple or keep default)
+    st.markdown(
+        "<p style='color:#4B0082; font-size:16px;'>Search for relevant gene comments, panels and caveats.</p>",
+        unsafe_allow_html=True
+    )
 
 with col2:
     st.image("Logo.jpg", width=250)
