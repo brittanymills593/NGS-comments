@@ -143,13 +143,27 @@ if gene_input:  # only proceed if user has entered genes
         st.markdown("### Figures from papers:")
         st.markdown("")  # spacing
 
-    # --- DDX41 Image ---
-    if "DDX41" in input_genes:
-        st.markdown("#### DDX41:")
-        st.image("DDX41_1.png", use_container_width=True)
-        st.image("DDX41_2.png", use_container_width=True)
-        st.image("DDX41_3.png", use_container_width=True)
-        st.markdown("")  # spacing after all DDX41 images
+    # --- DDX41 Images ---
+if "DDX41" in input_genes:
+    st.markdown("#### DDX41:")
+    
+    # Display images
+    st.image("DDX41_1.png", use_container_width=True)
+    st.image("DDX41_2.png", use_container_width=True)
+    st.image("DDX41_3.png", use_container_width=True)
+    
+    # Display references below the images
+    st.markdown(
+        "[Reference 1: The genetic landscape of germline DDX41 variants](https://ashpublications.org/blood/article/140/7/716/485483/The-genetic-landscape-of-germline-DDX41-variants?guestAccessKey=)"
+    )
+    st.markdown(
+        "[Reference 2: Germ-line DDX41 mutations define a unique subtype](https://ashpublications.org/blood/article/141/5/534/486974/Germ-line-DDX41-mutations-define-a-unique-subtype?guestAccessKey=)"
+    )
+    st.markdown(
+        "[Reference 3: Prevalence and significance of DDX41 gene variants](https://ashpublications.org/blood/article/142/14/1185/497190/Prevalence-and-significance-of-DDX41-gene-variants?guestAccessKey=)"
+    )
+    
+    st.markdown("")  # spacing after images and references
 
 # --- RUNX1 Image ---
 if "RUNX1" in input_genes:
