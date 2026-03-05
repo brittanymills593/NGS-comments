@@ -133,17 +133,24 @@ except Exception as e:
     st.error(f"Error loading CNV data: {e}")
 
 
-# --- Images Section ---
-st.markdown("---")
-st.markdown("### Figures from papers:")
-st.markdown("")  # adds a blank line for spacing
+# --- Images Section (conditional on gene input) ---
+if gene_input:  # only proceed if user has entered genes
+    input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.strip()]
 
-# --- Add DDX41 Image ---
-st.markdown("#### DDX41:")
-st.image("DDX41_images.jpg", use_container_width=True)
-st.markdown("")  # spacing after image
+    # Add a section header if at least one image will show
+    if any(gene in ["DDX41", "RUNX1"] for gene in input_genes):
+        st.markdown("---")
+        st.markdown("### Figures from papers:")
+        st.markdown("")  # spacing
 
-# --- Add RUNX1 Image ---
-st.markdown("#### RUNX1:")
-st.image("RUNX1_image.png", use_container_width=True)
-st.markdown("")  # spacing after image
+    # --- DDX41 Image ---
+    if "DDX41" in input_genes:
+        st.markdown("#### DDX41:")
+        st.image("DDX41_images.jpg", use_container_width=True)
+        st.markdown("")  # spacing after image
+
+    # --- RUNX1 Image ---
+    if "RUNX1" in input_genes:
+        st.markdown("#### RUNX1:")
+        st.image("RUNX1_image.png", use_container_width=True)
+        st.markdown("")  # spacing after image
