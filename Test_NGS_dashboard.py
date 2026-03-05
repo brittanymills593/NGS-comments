@@ -138,7 +138,7 @@ if gene_input:  # only proceed if user has entered genes
     input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.strip()]
 
     # Add a section header if at least one image will show
-    if any(gene in ["DDX41", "RUNX1"] for gene in input_genes):
+    if any(gene in ["DDX41", "RUNX1", "BCL2"] for gene in input_genes):
         st.markdown("---")
         st.markdown("### Figures from papers:")
         st.markdown("")  # spacing
@@ -153,4 +153,10 @@ if gene_input:  # only proceed if user has entered genes
     if "RUNX1" in input_genes:
         st.markdown("#### RUNX1:")
         st.image("RUNX1_image.png", use_container_width=True)
+        st.markdown("")  # spacing after image
+
+    # --- BCL2 Image ---
+    if "BCL2" in input_genes:
+        st.markdown("#### BCL2:")
+        st.image("BCL2_venetoclax.png", use_container_width=True)
         st.markdown("")  # spacing after image
