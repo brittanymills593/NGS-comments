@@ -8,13 +8,21 @@ EXCEL_FILE = "NGS_comments_automation.xlsx"
 # List of disease sheet names (must match the sheet names in the Excel file)
 DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders']
 
-# Streamlit app header
+# Streamlit app header with white box
 col1, col2 = st.columns([3.5, 1.5])
 
 with col1:
-    # Darker purple title
     st.markdown(
-        "<h1 style='color:#2E004F;'>Haem NGS Comments</h1>",
+        """
+        <div style="
+            background-color: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        ">
+            <h1 style='color:#2E004F; margin: 0;'>Haem NGS Comments</h1>
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
