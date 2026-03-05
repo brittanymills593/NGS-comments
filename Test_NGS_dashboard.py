@@ -139,11 +139,11 @@ st.markdown("### Figures from papers:")
 st.markdown("")  # adds a blank line for spacing
 
 # --- Add DDX41 Image ---
-st.markdown("### DDX41:")
+st.markdown("#### DDX41:")
 st.image("DDX41_images.jpg", use_container_width=True)
 st.markdown("")  # spacing after image
 
 # --- Add RUNX1 Image ---
-st.markdown("### RUNX1:")
+st.markdown("#### RUNX1:")
 st.image("RUNX1_image.png", use_container_width=True)
 st.markdown("")  # spacing after image
