@@ -87,7 +87,6 @@ try:
     cnv_df = pd.read_excel(EXCEL_FILE, sheet_name="CNV", usecols="A:C")
     cnv_df.columns = ['Disease', 'Region', 'Comment']
 
-    # Clean text (avoids Excel whitespace issues)
     cnv_df["Disease"] = cnv_df["Disease"].astype(str).str.strip()
     cnv_df["Region"] = cnv_df["Region"].astype(str).str.strip()
 
@@ -95,7 +94,7 @@ try:
     disease_options = [""] + sorted(cnv_df['Disease'].dropna().unique().tolist())
     selected_disease = st.selectbox("Select Disease (optional):", disease_options)
 
-    # Region options
+    # Region dropdown
     if selected_disease:
         region_options = [""] + sorted(
             cnv_df[cnv_df["Disease"] == selected_disease]["Region"].dropna().unique().tolist()
@@ -105,16 +104,15 @@ try:
 
     selected_region = st.selectbox("Select Region:", region_options)
 
-    # Filtering logic
-    if selected_region or selected_disease:
+    # 🔎 Only search if region selected
+    if selected_region:
 
         result = cnv_df.copy()
 
         if selected_disease:
             result = result[result["Disease"] == selected_disease]
 
-        if selected_region:
-            result = result[result["Region"] == selected_region]
+        result = result[result["Region"] == selected_region]
 
         if not result.empty:
             st.success("Comment found:")
