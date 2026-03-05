@@ -160,3 +160,9 @@ if gene_input:  # only proceed if user has entered genes
         st.markdown("##### BCL2:")
         st.image("BCL2_venetoclax.png", use_container_width=True)
         st.markdown("")  # spacing after image
+
+    # --- CALR Image ---
+    if "CALR" in input_genes:
+        st.markdown("##### CALR:")
+        st.image("CALR_image.jpg", use_container_width=True)
+        st.markdown("")  # spacing after image
