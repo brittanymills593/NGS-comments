@@ -143,7 +143,7 @@ if gene_input:  # only proceed if user has entered genes
         st.markdown("### Figures from papers:")
         st.markdown("")  # spacing
 
-    # --- DDX41 Images ---
+# --- DDX41 Images ---
 if "DDX41" in input_genes:
     st.markdown("#### DDX41:")
     
@@ -162,30 +162,30 @@ if "DDX41" in input_genes:
     st.markdown(
         "[Reference 3: Prevalence and significance of DDX41 gene variants](https://ashpublications.org/blood/article/142/14/1185/497190/Prevalence-and-significance-of-DDX41-gene-variants?guestAccessKey=)"
     )
-    
     st.markdown("")  # spacing after images and references
 
 # --- RUNX1 Image ---
 if "RUNX1" in input_genes:
-    st.markdown("##### RUNX1:")
+    st.markdown("#### RUNX1:")  # use #### for consistency
     st.image("RUNX1_image.png", use_container_width=True)
+    
     # Add clickable reference below image
     st.markdown(
-        "[Reference: RUNX1-mutated families phenotype](https://ashpublications.org/bloodadvances/article/4/6/1131/452758/RUNX1-mutated-families-show-phenotype)",
-        unsafe_allow_html=True
+        "[Reference: RUNX1-mutated families phenotype](https://ashpublications.org/bloodadvances/article/4/6/1131/452758/RUNX1-mutated-families-show-phenotype)"
     )
     st.markdown("")  # spacing after image and reference
 
-    # --- BCL2 Image ---
-    if "BCL2" in input_genes:
-        st.markdown("##### BCL2:")
-        st.image("BCL2_venetoclax.png", use_container_width=True)
-        st.markdown("")  # spacing after image
+# --- BCL2 Image ---
+if "BCL2" in input_genes:
+    st.markdown("#### BCL2:")
+    st.image("BCL2_venetoclax.png", use_container_width=True)
+    st.markdown("")  # spacing after image
 
-  # --- CALR Image ---
+# --- CALR Image ---
 if "CALR" in input_genes:
     st.markdown("#### CALR:")  # using #### to match other images
     st.image("CALR_image.jpg", use_container_width=True)
+    
     # Reference below image
     st.markdown(
         "[Reference: CALR study](https://doi.org/10.1002/ajh.25065)"
