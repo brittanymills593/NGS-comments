@@ -182,8 +182,12 @@ if "RUNX1" in input_genes:
         st.image("BCL2_venetoclax.png", use_container_width=True)
         st.markdown("")  # spacing after image
 
-    # --- CALR Image ---
-    if "CALR" in input_genes:
-        st.markdown("##### CALR:")
-        st.image("CALR_image.jpg", use_container_width=True)
-        st.markdown("")  # spacing after image
+  # --- CALR Image ---
+if "CALR" in input_genes:
+    st.markdown("#### CALR:")  # using #### to match other images
+    st.image("CALR_image.jpg", use_container_width=True)
+    # Reference below image
+    st.markdown(
+        "[Reference: CALR study](https://doi.org/10.1002/ajh.25065)"
+    )
+    st.markdown("")  # spacing after image and reference
