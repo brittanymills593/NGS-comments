@@ -12,27 +12,28 @@ DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL',
 col1, col2 = st.columns([3.5, 1.5])
 
 # Detect current theme
-theme_base = st.get_option("theme.base")  # returns "light" or "dark"
+theme_base = st.get_option("theme.base")  # "light" or "dark"
 
 with col1:
     if theme_base == "dark":
-        # Small white box for dark mode
         st.markdown(
             """
             <div style="
                 display: inline-block;
-                background-color: white; 
+                background-color: white !important; 
+                color: #2E004F;
                 padding: 10px 20px; 
                 border-radius: 8px; 
-                box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+                box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+                border: 1px solid #ccc;
+                z-index: 1000;
             ">
-                <h1 style='color:#2E004F; margin: 0; font-size: 1.8em;'>Haem NGS Comments</h1>
+                <h1 style='margin: 0; font-size: 1.8em;'>Haem NGS Comments</h1>
             </div>
             """,
             unsafe_allow_html=True
         )
     else:
-        # Standard header for light mode
         st.markdown(
             "<h1 style='color:#2E004F;'>Haem NGS Comments</h1>",
             unsafe_allow_html=True
