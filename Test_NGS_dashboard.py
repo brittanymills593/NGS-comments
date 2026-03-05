@@ -21,9 +21,6 @@ with col1:
 with col2:
     st.image("Logo.jpg", width=250)
 
-with col2:
-    st.image("Logo.jpg", width=250)
-
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
 gene_input = st.text_input("Enter one or more gene symbols (comma-separated, e.g. TP53, NRAS, FLT3):")
