@@ -9,7 +9,7 @@ EXCEL_FILE = "NGS_comments_automation.xlsx"
 DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders']
 
 # Streamlit app
-col1, col2 = st.columns([4,1])
+col1, col2 = st.columns([3.5,1.5])
 
 with col1:
     st.title("Haem NGS Comments")
