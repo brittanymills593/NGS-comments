@@ -9,8 +9,14 @@ EXCEL_FILE = "NGS_comments_automation.xlsx"
 DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders']
 
 # Streamlit app
-st.title("Haem NGS Comments")
-st.markdown("Search for relevant gene comments, panels and caveats.")
+col1, col2 = st.columns([4,1])
+
+with col1:
+    st.title("Haem NGS Comments")
+    st.markdown("Search for relevant gene comments, panels and caveats.")
+
+with col2:
+    st.image("Logo.jpg", width=120)
 
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
