@@ -145,18 +145,18 @@ if gene_input:  # only proceed if user has entered genes
 
     # --- DDX41 Image ---
     if "DDX41" in input_genes:
-        st.markdown("#### DDX41:")
+        st.markdown("##### DDX41:")
         st.image("DDX41_images.jpg", use_container_width=True)
         st.markdown("")  # spacing after image
 
     # --- RUNX1 Image ---
     if "RUNX1" in input_genes:
-        st.markdown("#### RUNX1:")
+        st.markdown("##### RUNX1:")
         st.image("RUNX1_image.png", use_container_width=True)
         st.markdown("")  # spacing after image
 
     # --- BCL2 Image ---
     if "BCL2" in input_genes:
-        st.markdown("#### BCL2:")
+        st.markdown("##### BCL2:")
         st.image("BCL2_venetoclax.png", use_container_width=True)
         st.markdown("")  # spacing after image
