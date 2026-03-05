@@ -16,7 +16,7 @@ with col1:
     st.markdown("Search for relevant gene comments, panels and caveats.")
 
 with col2:
-    st.image("Logo.jpg", width=120)
+    st.image("Logo.jpg", width=200)
 
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
