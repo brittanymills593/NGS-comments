@@ -87,33 +87,34 @@ try:
     cnv_df = pd.read_excel(EXCEL_FILE, sheet_name="CNV", usecols="A:C")
     cnv_df.columns = ['Disease', 'Region', 'Comment']
 
+    # Clean text (avoids Excel whitespace issues)
+    cnv_df["Disease"] = cnv_df["Disease"].astype(str).str.strip()
+    cnv_df["Region"] = cnv_df["Region"].astype(str).str.strip()
+
     # Disease dropdown
     disease_options = [""] + sorted(cnv_df['Disease'].dropna().unique().tolist())
-    selected_disease = st.selectbox("Select Disease:", disease_options, key="disease")
+    selected_disease = st.selectbox("Select Disease (optional):", disease_options)
 
-    # Reset region when disease changes
-    if "last_disease" not in st.session_state:
-        st.session_state.last_disease = ""
-
-    if selected_disease != st.session_state.last_disease:
-        st.session_state.region = ""
-        st.session_state.last_disease = selected_disease
-
-    # Filter regions based on disease
+    # Region options
     if selected_disease:
-        filtered_regions = cnv_df[cnv_df["Disease"] == selected_disease]["Region"].dropna().unique().tolist()
-        region_options = [""] + sorted(filtered_regions)
+        region_options = [""] + sorted(
+            cnv_df[cnv_df["Disease"] == selected_disease]["Region"].dropna().unique().tolist()
+        )
     else:
-        region_options = [""]
+        region_options = [""] + sorted(cnv_df["Region"].dropna().unique().tolist())
 
-    selected_region = st.selectbox("Select Region:", region_options, key="region")
+    selected_region = st.selectbox("Select Region:", region_options)
 
-    # Lookup result
-    if selected_disease and selected_region:
-        result = cnv_df[
-            (cnv_df["Disease"] == selected_disease) &
-            (cnv_df["Region"] == selected_region)
-        ]
+    # Filtering logic
+    if selected_region or selected_disease:
+
+        result = cnv_df.copy()
+
+        if selected_disease:
+            result = result[result["Disease"] == selected_disease]
+
+        if selected_region:
+            result = result[result["Region"] == selected_region]
 
         if not result.empty:
             st.success("Comment found:")
@@ -123,6 +124,3 @@ try:
 
 except Exception as e:
     st.error(f"Error loading CNV data: {e}")
-
-
-
