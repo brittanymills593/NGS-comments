@@ -151,11 +151,16 @@ if gene_input:  # only proceed if user has entered genes
         st.image("DDX41_3.png", use_container_width=True)
         st.markdown("")  # spacing after all DDX41 images
 
-    # --- RUNX1 Image ---
-    if "RUNX1" in input_genes:
-        st.markdown("##### RUNX1:")
-        st.image("RUNX1_image.png", use_container_width=True)
-        st.markdown("")  # spacing after image
+# --- RUNX1 Image ---
+if "RUNX1" in input_genes:
+    st.markdown("##### RUNX1:")
+    st.image("RUNX1_image.png", use_container_width=True)
+    # Add clickable reference below image
+    st.markdown(
+        "[Reference: RUNX1-mutated families phenotype](https://ashpublications.org/bloodadvances/article/4/6/1131/452758/RUNX1-mutated-families-show-phenotype)",
+        unsafe_allow_html=True
+    )
+    st.markdown("")  # spacing after image and reference
 
     # --- BCL2 Image ---
     if "BCL2" in input_genes:
