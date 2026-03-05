@@ -145,9 +145,11 @@ if gene_input:  # only proceed if user has entered genes
 
     # --- DDX41 Image ---
     if "DDX41" in input_genes:
-        st.markdown("##### DDX41:")
-        st.image("DDX41_images.jpg", use_container_width=True)
-        st.markdown("")  # spacing after image
+        st.markdown("#### DDX41:")
+        st.image("DDX41_1.png", use_container_width=True)
+        st.image("DDX41_2.png", use_container_width=True)
+        st.image("DDX41_3.png", use_container_width=True)
+        st.markdown("")  # spacing after all DDX41 images
 
     # --- RUNX1 Image ---
     if "RUNX1" in input_genes:
