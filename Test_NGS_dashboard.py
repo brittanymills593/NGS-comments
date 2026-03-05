@@ -133,10 +133,16 @@ except Exception as e:
     st.error(f"Error loading CNV data: {e}")
 
 
+# --- Main Images Section ---
+st.markdown("<h2 style='color:#2E004F;'>Paper figures:</h2>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)  # spacing
+
 # --- Add DDX41 Image ---
-st.markdown("### DDX41:")
+st.markdown("<h3 style='color:#2E004F;'>DDX41:</h3>", unsafe_allow_html=True)
 st.image("DDX41_images.jpg", use_container_width=True)
+st.markdown("<br><br>", unsafe_allow_html=True)  # extra spacing after image
 
 # --- Add RUNX1 Image ---
-st.markdown("### RUNX1:")
-st.image("RUNX1_image.jpg", use_container_width=True)
+st.markdown("<h3 style='color:#2E004F;'>RUNX1:</h3>", unsafe_allow_html=True)
+st.image("RUNX1_image.png", use_container_width=True)
+st.markdown("<br><br>", unsafe_allow_html=True)  # extra spacing after image
