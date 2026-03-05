@@ -15,26 +15,25 @@ col1, col2 = st.columns([3.5, 1.5])
 
 with col1:
     if theme_base == "dark":
-        # White box that stands out in dark mode
+        # Full container white header for dark mode
         st.markdown(
             """
             <div style="
-                display: inline-block;
-                background-color: #ffffff; 
+                background-color: white;
                 color: #2E004F;
-                padding: 8px 16px; 
-                border-radius: 6px; 
+                padding: 10px 20px;
+                border-radius: 8px;
+                display: inline-block;
                 box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
-                border: 1px solid #ccc;
                 font-family: sans-serif;
             ">
-                <span style='font-size:28px; font-weight:bold;'>Haem NGS Comments</span>
+                <strong style='font-size:28px;'>Haem NGS Comments</strong>
             </div>
             """,
             unsafe_allow_html=True
         )
     else:
-        # Standard header for light mode
+        # Normal header for light mode
         st.markdown(
             "<h1 style='color:#2E004F;'>Haem NGS Comments</h1>",
             unsafe_allow_html=True
