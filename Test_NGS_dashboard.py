@@ -8,36 +8,12 @@ EXCEL_FILE = "NGS_comments_automation.xlsx"
 # List of disease sheet names (must match the sheet names in the Excel file)
 DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders']
 
-# Detect current theme
-theme_base = st.get_option("theme.base")  # "light" or "dark"
-
+# --- Streamlit app header with header image ---
 col1, col2 = st.columns([3.5, 1.5])
 
 with col1:
-    if theme_base == "dark":
-        # Full container white header for dark mode
-        st.markdown(
-            """
-            <div style="
-                background-color: white;
-                color: #2E004F;
-                padding: 10px 20px;
-                border-radius: 8px;
-                display: inline-block;
-                box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
-                font-family: sans-serif;
-            ">
-                <strong style='font-size:28px;'>Haem NGS Comments</strong>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    else:
-        # Normal header for light mode
-        st.markdown(
-            "<h1 style='color:#2E004F;'>Haem NGS Comments</h1>",
-            unsafe_allow_html=True
-        )
+    # Display header image (white background + title text)
+    st.image("header.png", use_column_width=False)
 
 with col2:
     st.image("Logo.jpg", width=250)
