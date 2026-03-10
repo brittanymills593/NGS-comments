@@ -85,11 +85,26 @@ try:
 
     if selected_caveat:
         result = caveat_df[caveat_df['Caveat'] == selected_caveat]
+
         if not result.empty:
+            comment = result.iloc[0]['Comment']
+
+            # Check if placeholder exists
+            if "[list genes]" in comment:
+                gene_input = st.text_input(
+                    "Enter gene list (comma separated):",
+                    placeholder="e.g. KMT2A, ASXL1"
+                )
+
+                if gene_input:
+                    comment = comment.replace("[list genes]", gene_input)
+
             st.success("Caveat comment found:")
-            st.write(result.iloc[0]['Comment'])
+            st.write(comment)
+
         else:
             st.warning("No matching caveat found.")
+
 except Exception as e:
     st.error(f"Error loading Caveats data: {e}")
 
