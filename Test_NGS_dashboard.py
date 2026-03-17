@@ -197,5 +197,5 @@ if "CALR" in input_genes:
 
 # --- Bottom Image ---
 st.markdown("---")
-st.markdown("### Variant positions overview build 38")
+st.markdown("### Build 38 variant position changes")
 st.image("Variant_new_positions.png", use_container_width=True)
