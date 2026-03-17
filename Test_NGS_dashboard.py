@@ -193,3 +193,9 @@ if "CALR" in input_genes:
         "[Reference: CALR study](https://doi.org/10.1002/ajh.25065)"
     )
     st.markdown("")  # spacing after image and reference
+
+
+# --- Bottom Image ---
+st.markdown("---")
+st.markdown("### Variant positions overview build 38")
+st.image("Variant_new_positions.png", use_container_width=True)
