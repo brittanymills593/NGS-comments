@@ -29,11 +29,11 @@ with col2:
     st.image("Logo.jpg", width=250)
 
 with st.sidebar:
-    st.markdown("## 📘 Instructions")
+    st.markdown("## 📘 Report structure")
     st.write("""
-    - Step 1: Select disease
-    - Step 2: Upload file
-    - Step 3: Review output
+    - Pathogenic/likely pathogenic variants >5% VAF
+    - Low level (<5% VAF) pathogenic/likely pathogenic variants
+    - Interpretation of variants >5% VAF only and TP53 at any level
     """)
 
 # --- Gene Comments Section ---
