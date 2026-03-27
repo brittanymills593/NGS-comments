@@ -28,18 +28,13 @@ with col1:
 with col2:
     st.image("Logo.jpg", width=250)
 
-@st.dialog("Instructions")
-def show_instructions():
+with st.sidebar:
+    st.markdown("## 📘 Instructions")
     st.write("""
-    ### How to use this dashboard:
-    - Select a disease type
-    - Upload your file
-    - Review generated comments
+    - Step 1: Select disease
+    - Step 2: Upload file
+    - Step 3: Review output
     """)
-
-# Button to trigger popup
-if st.button("Show Instructions"):
-    show_instructions()
 
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
