@@ -29,7 +29,7 @@ with col2:
     st.image("Logo.jpg", width=250)
 
 with st.sidebar:
-    st.markdown("## 📘 Report structure")
+    st.markdown("## 🧬 Report structure")
     st.write("""
     - Pathogenic/likely pathogenic variants >5% VAF
     - Low level (<5% VAF) pathogenic/likely pathogenic variants
