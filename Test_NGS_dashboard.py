@@ -28,6 +28,19 @@ with col1:
 with col2:
     st.image("Logo.jpg", width=250)
 
+@st.dialog("Instructions")
+def show_instructions():
+    st.write("""
+    ### How to use this dashboard:
+    - Select a disease type
+    - Upload your file
+    - Review generated comments
+    """)
+
+# Button to trigger popup
+if st.button("Show Instructions"):
+    show_instructions()
+
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
 gene_input = st.text_input("Enter one or more gene symbols (comma-separated, e.g. TP53, NRAS, FLT3):")
