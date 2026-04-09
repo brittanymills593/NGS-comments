@@ -33,7 +33,7 @@ with st.sidebar:
     st.write("""
     - Pathogenic/likely pathogenic variants >5% VAF
     - Low level (<5% VAF) pathogenic/likely pathogenic variants
-    - Interpretation of variants >5% VAF only and TP53 at any level
+    - Interpretation of variants >5% VAF only and TP53 + JAK2 at any level
     """)
 
 # --- Gene Comments Section ---
