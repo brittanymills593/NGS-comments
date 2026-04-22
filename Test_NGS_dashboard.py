@@ -60,11 +60,17 @@ input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.st
 
 if selected_disease and gene_input:
     try:
-        # Load A:C instead of A:B to include Mode
-        df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:C")
-        df.columns = ['Gene', 'Relevant_comments', 'Mode']
+        # Load sheet WITHOUT forcing columns (prevents Excel errors)
+        df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease)
 
-        # Normalise gene matching
+        # Handle variable column structures safely
+        if df.shape[1] >= 3:
+            df = df.iloc[:, :3]
+            df.columns = ['Gene', 'Relevant_comments', 'Mode']
+        else:
+            df = df.iloc[:, :2]
+            df.columns = ['Gene', 'Relevant_comments']
+
         df['Gene'] = df['Gene'].astype(str)
         df['Gene_upper'] = df['Gene'].str.upper()
 
@@ -73,26 +79,35 @@ if selected_disease and gene_input:
         if not filtered_df.empty:
             st.success(f"Found {len(filtered_df)} matching comment(s):")
 
-            # --- Colour styling for Mode column ---
-            def highlight_mode(val):
-                if isinstance(val, str):
-                    v = val.lower()
-                    if "tumour suppressor" in v:
-                        return "background-color: #d4edda; color: #155724;"  # green
-                    elif "oncogene" in v:
-                        return "background-color: #f8d7da; color: #721c24;"  # red
-                return ""
+            # --- Mode colouring (only if column exists) ---
+            if 'Mode' in filtered_df.columns:
 
-            styled_df = filtered_df.style.applymap(
-                highlight_mode,
-                subset=["Mode"]
-            )
+                def highlight_mode(val):
+                    if isinstance(val, str):
+                        v = val.lower()
+                        if "tumour suppressor" in v:
+                            return "background-color: #d4edda; color: #155724;"
+                        elif "oncogene" in v:
+                            return "background-color: #f8d7da; color: #721c24;"
+                    return ""
 
-            st.dataframe(
-                styled_df,
-                use_container_width=True,
-                hide_index=True
-            )
+                styled_df = filtered_df.style.applymap(
+                    highlight_mode,
+                    subset=["Mode"]
+                )
+
+                st.dataframe(
+                    styled_df,
+                    use_container_width=True,
+                    hide_index=True
+                )
+
+            else:
+                st.dataframe(
+                    filtered_df,
+                    use_container_width=True,
+                    hide_index=True
+                )
 
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
