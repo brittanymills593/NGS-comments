@@ -3,6 +3,18 @@ import pandas as pd
 import os
 
 st.set_page_config(layout="wide")
+st.markdown(
+    """
+    <style>
+    .block-container {
+        max-width: 1200px;   /* adjust this value */
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Path to your Excel file
 EXCEL_FILE = "NGS_comments_automation.xlsx"
