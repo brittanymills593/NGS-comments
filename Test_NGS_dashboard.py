@@ -60,10 +60,9 @@ input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.st
 
 if selected_disease and gene_input:
     try:
-        # Load sheet WITHOUT forcing columns (prevents Excel errors)
         df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease)
 
-        # Handle variable column structures safely
+        # Safely standardise columns
         if df.shape[1] >= 3:
             df = df.iloc[:, :3]
             df.columns = ['Gene', 'Relevant_comments', 'Mode']
@@ -71,15 +70,13 @@ if selected_disease and gene_input:
             df = df.iloc[:, :2]
             df.columns = ['Gene', 'Relevant_comments']
 
-        df['Gene'] = df['Gene'].astype(str)
-        df['Gene_upper'] = df['Gene'].str.upper()
-
-        filtered_df = df[df['Gene_upper'].isin(input_genes)]
+        # Filtering WITHOUT creating extra displayed columns
+        filtered_df = df[df['Gene'].astype(str).str.upper().isin(input_genes)].copy()
 
         if not filtered_df.empty:
             st.success(f"Found {len(filtered_df)} matching comment(s):")
 
-            # --- Mode colouring (only if column exists) ---
+            # --- Only style Mode if it exists ---
             if 'Mode' in filtered_df.columns:
 
                 def highlight_mode(val):
@@ -114,6 +111,7 @@ if selected_disease and gene_input:
 
     except Exception as e:
         st.error(f"Error loading gene comments: {e}")
+
 
 # --- Panel Lookup Section ---
 st.markdown("---")
