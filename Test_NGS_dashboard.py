@@ -72,12 +72,23 @@ if selected_disease and gene_input:
             df['Mode'] = ""
 
         # Same filtering logic as original
-        filtered_df = df[df['Gene'].str.upper().isin(input_genes)]
+        filtered_df = df[df['Gene'].str.upper().isin(input_genes)].copy()
 
         if not filtered_df.empty:
             st.success(f"Found {len(filtered_df)} matching comment(s):")
 
-            # NO COLOUR FORMATTING (clean display)
+            # --- Add coloured circles to Mode ---
+            def format_mode(val):
+                if isinstance(val, str):
+                    v = val.lower()
+                    if "tumour suppressor" in v:
+                        return "🟢 Tumour suppressor"
+                    elif "oncogene" in v:
+                        return "🔴 Oncogene"
+                return val
+
+            filtered_df["Mode"] = filtered_df["Mode"].apply(format_mode)
+
             st.dataframe(
                 filtered_df,
                 use_container_width=True,
