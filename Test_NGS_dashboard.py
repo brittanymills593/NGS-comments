@@ -60,37 +60,47 @@ input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.st
 
 if selected_disease and gene_input:
     try:
+        # Load A:C instead of A:B to include Mode
         df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:C")
         df.columns = ['Gene', 'Relevant_comments', 'Mode']
 
-        # normalise gene case
+        # Normalise gene matching
+        df['Gene'] = df['Gene'].astype(str)
         df['Gene_upper'] = df['Gene'].str.upper()
 
         filtered_df = df[df['Gene_upper'].isin(input_genes)]
 
         if not filtered_df.empty:
-            st.success(f"Found {len(filtered_df)} matching gene(s):")
+            st.success(f"Found {len(filtered_df)} matching comment(s):")
 
-            # Create clickable selection list
-            selected_gene = st.selectbox(
-                "Select a gene to view details:",
-                filtered_df['Gene'].tolist()
+            # --- Colour styling for Mode column ---
+            def highlight_mode(val):
+                if isinstance(val, str):
+                    v = val.lower()
+                    if "tumour suppressor" in v:
+                        return "background-color: #d4edda; color: #155724;"  # green
+                    elif "oncogene" in v:
+                        return "background-color: #f8d7da; color: #721c24;"  # red
+                return ""
+
+            styled_df = filtered_df.style.applymap(
+                highlight_mode,
+                subset=["Mode"]
             )
 
-            # show details for selected gene
-            gene_row = filtered_df[filtered_df['Gene'] == selected_gene].iloc[0]
-
-            st.markdown("### Gene Details")
-
-            st.markdown(f"**Gene:** {gene_row['Gene']}")
-            st.markdown(f"**Mode:** {gene_row['Mode']}")
-            st.markdown(f"**Comment:** {gene_row['Relevant_comments']}")
+            st.dataframe(
+                styled_df,
+                use_container_width=True,
+                hide_index=True
+            )
 
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
 
     except Exception as e:
         st.error(f"Error loading gene comments: {e}")
+
+
 
 try:
     panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")  # Load all columns
