@@ -60,32 +60,40 @@ input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.st
 
 if selected_disease and gene_input:
     try:
-        # Safe loading for all sheets
+        # Load safely (A:B always exists)
         df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
         df.columns = ['Gene', 'Relevant_comments']
 
-        # Try to load Mode column if it exists
+        # Try to load Mode column (C)
         try:
             mode_df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="C")
             df['Mode'] = mode_df.iloc[:, 0]
         except:
             df['Mode'] = ""
 
-        # Same filtering logic as original
         filtered_df = df[df['Gene'].str.upper().isin(input_genes)].copy()
 
         if not filtered_df.empty:
             st.success(f"Found {len(filtered_df)} matching comment(s):")
 
-            # --- Add coloured circles to Mode ---
+            # --- Add dot logic ---
             def format_mode(val):
-                if isinstance(val, str):
-                    v = val.lower()
-                    if "tumour suppressor" in v:
-                        return "🟢 Tumour suppressor"
-                    elif "oncogene" in v:
-                        return "🔴 Oncogene"
-                return val
+                if not isinstance(val, str):
+                    return val
+
+                v = val.lower()
+
+                is_ts = "tumour suppressor" in v
+                is_onc = "oncogene" in v
+
+                if is_ts and not is_onc:
+                    return "🟢 Tumour suppressor"
+                elif is_onc and not is_ts:
+                    return "🔴 Oncogene"
+                elif is_ts and is_onc:
+                    return "🟢🔴 Oncogene / Tumour suppressor"
+                else:
+                    return val
 
             filtered_df["Mode"] = filtered_df["Mode"].apply(format_mode)
 
@@ -100,6 +108,8 @@ if selected_disease and gene_input:
 
     except Exception as e:
         st.error(f"Error loading gene comments: {e}")
+
+
 
 # --- Panel Lookup Section ---
 st.markdown("---")
