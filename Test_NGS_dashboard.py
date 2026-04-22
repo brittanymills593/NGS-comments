@@ -60,26 +60,27 @@ input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.st
 
 if selected_disease and gene_input:
     try:
-        # Load base columns safely
+        # Load safe base columns
         df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
         df.columns = ['Gene', 'Relevant_comments']
 
-        # Try Mode column
+        # Try to load Mode column (C)
         try:
             mode_df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="C")
             df['Mode'] = mode_df.iloc[:, 0]
         except:
             df['Mode'] = ""
 
+        # Filter genes (same logic as original)
         filtered_df = df[df['Gene'].str.upper().isin(input_genes)].copy()
 
         if not filtered_df.empty:
             st.success(f"Found {len(filtered_df)} matching comment(s):")
 
-            # --- Toggle button ---
+            # --- Toggle ---
             show_mode = st.checkbox("Show Mode column")
 
-            # --- Mode formatting with dots ---
+            # --- Format Mode with dots ---
             def format_mode(val):
                 if not isinstance(val, str):
                     return val
@@ -100,11 +101,11 @@ if selected_disease and gene_input:
 
             filtered_df["Mode"] = filtered_df["Mode"].apply(format_mode)
 
-            # --- Hide/show Mode column ---
-            if not show_mode:
-                display_df = filtered_df.drop(columns=["Mode"])
-            else:
+            # --- IMPORTANT: build display dataframe cleanly ---
+            if show_mode:
                 display_df = filtered_df
+            else:
+                display_df = filtered_df.drop(columns=["Mode"])
 
             st.dataframe(
                 display_df,
