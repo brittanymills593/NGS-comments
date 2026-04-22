@@ -60,18 +60,18 @@ input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.st
 
 if selected_disease and gene_input:
     try:
-        # Safe loading (works for all sheets)
+        # Safe loading for all sheets
         df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
         df.columns = ['Gene', 'Relevant_comments']
 
-        # Try to add Mode if column C exists
+        # Try to load Mode column if it exists (column C)
         try:
             mode_df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="C")
             df['Mode'] = mode_df.iloc[:, 0]
         except:
             df['Mode'] = ""
 
-        # Filtering (your original logic)
+        # Filtering (same logic as your original)
         filtered_df = df[df['Gene'].str.upper().isin(input_genes)]
 
         if not filtered_df.empty:
@@ -87,7 +87,8 @@ if selected_disease and gene_input:
                         return "background-color: #f8d7da; color: #721c24; font-weight: bold;"
                 return ""
 
-            styled_df = filtered_df.style.applymap(
+            # IMPORTANT: use .map (not applymap)
+            styled_df = filtered_df.style.map(
                 highlight_mode,
                 subset=["Mode"]
             )
