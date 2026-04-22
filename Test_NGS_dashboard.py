@@ -60,58 +60,24 @@ input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.st
 
 if selected_disease and gene_input:
     try:
-        df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease)
+        # NOW include column C as well
+        df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:C")
+        df.columns = ['Gene', 'Relevant_comments', 'Mode']
 
-        # Safely standardise columns
-        if df.shape[1] >= 3:
-            df = df.iloc[:, :3]
-            df.columns = ['Gene', 'Relevant_comments', 'Mode']
-        else:
-            df = df.iloc[:, :2]
-            df.columns = ['Gene', 'Relevant_comments']
-
-        # Filtering WITHOUT creating extra displayed columns
-        filtered_df = df[df['Gene'].astype(str).str.upper().isin(input_genes)].copy()
+        # SAME LOGIC as before (no extra columns created)
+        filtered_df = df[df['Gene'].str.upper().isin(input_genes)]
 
         if not filtered_df.empty:
             st.success(f"Found {len(filtered_df)} matching comment(s):")
 
-            # --- Only style Mode if it exists ---
-            if 'Mode' in filtered_df.columns:
-
-                def highlight_mode(val):
-                    if isinstance(val, str):
-                        v = val.lower()
-                        if "tumour suppressor" in v:
-                            return "background-color: #d4edda; color: #155724;"
-                        elif "oncogene" in v:
-                            return "background-color: #f8d7da; color: #721c24;"
-                    return ""
-
-                styled_df = filtered_df.style.applymap(
-                    highlight_mode,
-                    subset=["Mode"]
-                )
-
-                st.dataframe(
-                    styled_df,
-                    use_container_width=True,
-                    hide_index=True
-                )
-
-            else:
-                st.dataframe(
-                    filtered_df,
-                    use_container_width=True,
-                    hide_index=True
-                )
+            # Show table exactly like before
+            st.dataframe(filtered_df, use_container_width=True, hide_index=True)
 
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
 
     except Exception as e:
         st.error(f"Error loading gene comments: {e}")
-
 
 # --- Panel Lookup Section ---
 st.markdown("---")
