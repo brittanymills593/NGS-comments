@@ -60,18 +60,43 @@ input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.st
 
 if selected_disease and gene_input:
     try:
-        # NOW include column C as well
-        df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:C")
-        df.columns = ['Gene', 'Relevant_comments', 'Mode']
+        # Safe loading (works for all sheets)
+        df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
+        df.columns = ['Gene', 'Relevant_comments']
 
-        # SAME LOGIC as before (no extra columns created)
+        # Try to add Mode if column C exists
+        try:
+            mode_df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="C")
+            df['Mode'] = mode_df.iloc[:, 0]
+        except:
+            df['Mode'] = ""
+
+        # Filtering (your original logic)
         filtered_df = df[df['Gene'].str.upper().isin(input_genes)]
 
         if not filtered_df.empty:
             st.success(f"Found {len(filtered_df)} matching comment(s):")
 
-            # Show table exactly like before
-            st.dataframe(filtered_df, use_container_width=True, hide_index=True)
+            # --- Colour coding for Mode ---
+            def highlight_mode(val):
+                if isinstance(val, str):
+                    v = val.lower()
+                    if "tumour suppressor" in v:
+                        return "background-color: #d4edda; color: #155724; font-weight: bold;"
+                    elif "oncogene" in v:
+                        return "background-color: #f8d7da; color: #721c24; font-weight: bold;"
+                return ""
+
+            styled_df = filtered_df.style.applymap(
+                highlight_mode,
+                subset=["Mode"]
+            )
+
+            st.dataframe(
+                styled_df,
+                use_container_width=True,
+                hide_index=True
+            )
 
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
