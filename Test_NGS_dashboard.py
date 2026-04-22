@@ -100,7 +100,9 @@ if selected_disease and gene_input:
     except Exception as e:
         st.error(f"Error loading gene comments: {e}")
 
-
+# --- Panel Lookup Section ---
+st.markdown("---")
+st.markdown("### Panel Lookup")
 
 try:
     panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")  # Load all columns
