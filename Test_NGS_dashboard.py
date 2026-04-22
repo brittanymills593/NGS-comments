@@ -52,28 +52,45 @@ with st.sidebar:
 
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
-gene_input = st.text_input("Enter one or more gene symbols (comma-separated, e.g. TP53, NRAS, FLT3):")
+gene_input = st.text_input(
+    "Enter one or more gene symbols (comma-separated, e.g. TP53, NRAS, FLT3):"
+)
 
-# Define input_genes upfront to avoid NameError in images section
 input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.strip()]
 
 if selected_disease and gene_input:
     try:
-        df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
-        df.columns = ['Gene', 'Relevant_comments']
-        filtered_df = df[df['Gene'].str.upper().isin(input_genes)]
+        df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:C")
+        df.columns = ['Gene', 'Relevant_comments', 'Mode']
+
+        # normalise gene case
+        df['Gene_upper'] = df['Gene'].str.upper()
+
+        filtered_df = df[df['Gene_upper'].isin(input_genes)]
 
         if not filtered_df.empty:
-            st.success(f"Found {len(filtered_df)} matching comment(s):")
-            st.dataframe(filtered_df, use_container_width=True, hide_index=True)
+            st.success(f"Found {len(filtered_df)} matching gene(s):")
+
+            # Create clickable selection list
+            selected_gene = st.selectbox(
+                "Select a gene to view details:",
+                filtered_df['Gene'].tolist()
+            )
+
+            # show details for selected gene
+            gene_row = filtered_df[filtered_df['Gene'] == selected_gene].iloc[0]
+
+            st.markdown("### Gene Details")
+
+            st.markdown(f"**Gene:** {gene_row['Gene']}")
+            st.markdown(f"**Mode:** {gene_row['Mode']}")
+            st.markdown(f"**Comment:** {gene_row['Relevant_comments']}")
+
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
+
     except Exception as e:
         st.error(f"Error loading gene comments: {e}")
-
-# --- Panel Lookup Section ---
-st.markdown("---")
-st.markdown("### Panel Lookup")
 
 try:
     panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")  # Load all columns
