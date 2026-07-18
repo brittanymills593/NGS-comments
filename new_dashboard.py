@@ -225,7 +225,7 @@ def run_new_dashboard ():
                                ).ratio()
            
                                # Group similar comments
-                               if similarity > 0.85:
+                               if similarity > 0.95:
                                    matching_genes.append(gene2)
                                    used_indices.add(j)
            
