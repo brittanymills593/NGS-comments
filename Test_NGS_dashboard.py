@@ -120,6 +120,49 @@ if selected_disease and gene_input:
         st.error(f"Error loading gene comments: {e}")
 
 
+# Automatically selected panel for each disease
+DISEASE_TO_PANEL = {
+    "AML": "Myeloid panelv1.0",
+    "MDS": "Myeloid panelv1.0",
+    "MPN": "Myeloid panelv1.0",
+    "B lymphoid": "ChronicBlymphoidv4.0",
+    "T lymphoid": "chronicTlymphoidv4.0",
+    "CLL": "CLLv3.0",
+    "Myeloma": "Myelomav4.0",
+    "ALL": "ALLv4.0",
+    "Histiocytic disorders": "Histiocytosisv4.0"
+}
+
+# --- Automatically display panel for selected disease ---
+try:
+    panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")
+
+    auto_panel = DISEASE_TO_PANEL.get(selected_disease)
+
+    if auto_panel:
+        result = panel_df[panel_df["Panel"] == auto_panel]
+
+        if not result.empty:
+            panel_genes = result.iloc[0]["Genes"]
+
+            # Split into list and remove any genes entered by the user
+            panel_gene_list = [
+                gene.strip() for gene in panel_genes.split(",")
+            ]
+
+            panel_gene_list = [
+                gene for gene in panel_gene_list
+                if gene.upper() not in input_genes
+            ]
+
+            panel_text = ", ".join(panel_gene_list)
+
+            st.markdown("### Remaining panel genes")
+            st.write(panel_text)
+
+except Exception as e:
+    st.error(f"Error loading automatic panel: {e}")
+    
 
 # --- Panel Lookup Section ---
 st.markdown("---")
