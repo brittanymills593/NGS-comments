@@ -4,7 +4,7 @@ import os
 from difflib import SequenceMatcher
         
         
-def run_new_dashboard():
+        def run_new_dashboard():
         
             st.set_page_config(layout="wide")
         
