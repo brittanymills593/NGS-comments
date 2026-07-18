@@ -332,6 +332,32 @@ try:
 except Exception as e:
     st.error(f"Error loading CNV data: {e}")
 
+
+# --- Panel Lookup Section ---
+st.markdown("---")
+st.markdown("### Panel Lookup")
+
+try:
+    panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")  # Load all columns
+
+    if 'Panel' in panel_df.columns and 'Genes' in panel_df.columns:
+        panel_names = panel_df['Panel'].dropna().unique().tolist()
+        selected_panel = st.selectbox("Select Panel Name:", [""] + panel_names)
+
+        if selected_panel:
+            result = panel_df[panel_df['Panel'] == selected_panel]
+            if not result.empty:
+                st.success("Panel genes found:")
+                st.write(result.iloc[0]['Genes'])
+            else:
+                st.warning("No matching panel found.")
+    else:
+        st.error("Expected columns 'Panel' and/or 'Genes' not found in the sheet.")
+except Exception as e:
+    st.error(f"Error loading Panel data: {e}")
+
+
+
 # --- Images Section (conditional on gene input) ---
 if input_genes:  # only proceed if user has entered genes
     # Show header if at least one gene with images is selected
@@ -387,27 +413,3 @@ st.markdown("---")
 st.markdown("### Build 38 variant position changes")
 st.image("Variant_new_positions.png", use_container_width=True)
 
-
-
-# --- Panel Lookup Section ---
-st.markdown("---")
-st.markdown("### Panel Lookup")
-
-try:
-    panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")  # Load all columns
-
-    if 'Panel' in panel_df.columns and 'Genes' in panel_df.columns:
-        panel_names = panel_df['Panel'].dropna().unique().tolist()
-        selected_panel = st.selectbox("Select Panel Name:", [""] + panel_names)
-
-        if selected_panel:
-            result = panel_df[panel_df['Panel'] == selected_panel]
-            if not result.empty:
-                st.success("Panel genes found:")
-                st.write(result.iloc[0]['Genes'])
-            else:
-                st.warning("No matching panel found.")
-    else:
-        st.error("Expected columns 'Panel' and/or 'Genes' not found in the sheet.")
-except Exception as e:
-    st.error(f"Error loading Panel data: {e}")
