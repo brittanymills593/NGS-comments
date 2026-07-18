@@ -256,9 +256,9 @@ if selected_disease and input_genes:
 
                     output_text.append(comment)
 
-            # Display everything in one blue information box
+            # Display everything as normal text
             if output_text:
-                st.info("\n\n".join(output_text))
+                st.write("\n\n".join(output_text))
 
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
