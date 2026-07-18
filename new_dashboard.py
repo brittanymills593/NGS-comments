@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from difflib import SequenceMatcher
-        
-        
+           
         def run_new_dashboard():
         
             st.set_page_config(layout="wide")
@@ -57,154 +56,154 @@ from difflib import SequenceMatcher
             # Streamlit app header
             col1, col2 = st.columns([3.5, 1.5])
         
-        ows():
-        
-                            if j <= i or j in used_indices:
-                                continue
-        
-                            gene2 = row2["Gene"]
-                            comment2 = row2["Relevant_comments"]
-        
-                            # Remove gene names for comparison
-                            clean_comment = (
-                                comment
-                                .replace(gene, "")with col1:
-            st.markdown(
-                """
-                <div style="
-                    background-color: white;   /* white background */
-                    padding: 10px 20px;        /* add padding around text */
-                    display: inline-block;     /* shrink box to text width */
-                ">
-                    <h1 style='color:#2E004F; margin: 0; font-size: 2em;'>Haem NGS Comments</h1>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-        
-        with col2:
-            st.image("Logo.jpg", width=250)
-        
-        with st.sidebar:
-            st.markdown("## 🧬 Report structure")
-            st.write("""
-            - Pathogenic/likely pathogenic variants >5% VAF
-            - Low level (<5% VAF) pathogenic/likely pathogenic variants
-            - Interpretation of variants >5% VAF only and TP53 + JAK2 at any level
-            """)
-        
-        # AML reminder popup
-        @st.dialog("AML sample reminder")
-        def aml_reminder_popup():
-            st.write(
-                """
-                Remember to manually check **UBTF** for partial tandem duplication. Instructions on iPassport:
+                ows():
                 
-                GEN-SOP 850: NGS analysis and Webserver Instructions (Version 2.0)
-        
-                Coordinates (GRCh38):
-                **chr17:44,210,790-44,210,949**
-                """
-            )
-        
-            if st.button("Close"):
-                st.session_state.aml_popup_closed = True
-                st.rerun()
+                                    if j <= i or j in used_indices:
+                                        continue
                 
-        
-        # --- Gene Comments Section ---
-        selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
-        
-        # Reset popup when disease changes
-        if "previous_disease" not in st.session_state:
-            st.session_state.previous_disease = selected_disease
-            st.session_state.aml_popup_closed = False
-        
-        if selected_disease != st.session_state.previous_disease:
-            st.session_state.previous_disease = selected_disease
-            st.session_state.aml_popup_closed = False
-        
-        # Show AML reminder when AML is selected
-        if selected_disease == "AML" and not st.session_state.aml_popup_closed:
-            aml_reminder_popup()
-        
-        gene_input = st.text_input(
-            "Enter one or more gene symbols (comma-separated, e.g. TP53, NRAS, FLT3):"
-        )
-        
-        # Two additional input boxes
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            medium_gene_input = st.text_input(
-                "Medium confidence genes",
-                placeholder="e.g. ASXL1, DNMT3A"
-            )
-        
-        with col2:
-            low_gene_input = st.text_input(
-                "Low confidence genes",
-                placeholder="e.g. TP53"
-            )
-        
-        # Convert inputs to lists
-        input_genes = [
-            gene.strip().upper()
-            for gene in gene_input.split(",")
-            if gene.strip()
-        ]
-        
-        # Preserve the formatting entered by the user
-        medium_genes = [
-            gene.strip()
-            for gene in medium_gene_input.split(",")
-            if gene.strip()
-        ]
-        
-        low_genes = [
-            gene.strip()
-            for gene in low_gene_input.split(",")
-            if gene.strip()
-        ]
-        
-        # Uppercase versions for matching only
-        medium_genes_upper = [
-            gene.upper()
-            for gene in medium_genes
-        ]
-        
-        low_genes_upper = [
-            gene.upper()
-            for gene in low_genes
-        ]
-        
-        # Continue only if genes have been entered
-        if selected_disease and input_genes:
-            try:
-        
-                # -----------------------------
-                # Load gene comments
-                # -----------------------------
-                df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
-                df.columns = ["Gene", "Relevant_comments"]
-        
-                try:
-                    mode_df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="C")
-                    df["Mode"] = mode_df.iloc[:, 0]
-                except:
-                    df["Mode"] = ""
-        
-                # Preserve order entered by user
-                filtered_rows = []
-        
-                for gene in input_genes:
-                    matches = df[df["Gene"].str.upper() == gene]
-                    if not matches.empty:
-                        filtered_rows.append(matches)
-        
-                if filtered_rows:
-        
-                    filtered_df = pd.concat(filtered_rows, ignore_index=True)
+                                    gene2 = row2["Gene"]
+                                    comment2 = row2["Relevant_comments"]
+                
+                                    # Remove gene names for comparison
+                                    clean_comment = (
+                                        comment
+                                        .replace(gene, "")with col1:
+                    st.markdown(
+                        """
+                        <div style="
+                            background-color: white;   /* white background */
+                            padding: 10px 20px;        /* add padding around text */
+                            display: inline-block;     /* shrink box to text width */
+                        ">
+                            <h1 style='color:#2E004F; margin: 0; font-size: 2em;'>Haem NGS Comments</h1>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                
+                with col2:
+                    st.image("Logo.jpg", width=250)
+                
+                with st.sidebar:
+                    st.markdown("## 🧬 Report structure")
+                    st.write("""
+                    - Pathogenic/likely pathogenic variants >5% VAF
+                    - Low level (<5% VAF) pathogenic/likely pathogenic variants
+                    - Interpretation of variants >5% VAF only and TP53 + JAK2 at any level
+                    """)
+                
+                # AML reminder popup
+                @st.dialog("AML sample reminder")
+                def aml_reminder_popup():
+                    st.write(
+                        """
+                        Remember to manually check **UBTF** for partial tandem duplication. Instructions on iPassport:
+                        
+                        GEN-SOP 850: NGS analysis and Webserver Instructions (Version 2.0)
+                
+                        Coordinates (GRCh38):
+                        **chr17:44,210,790-44,210,949**
+                        """
+                    )
+                
+                    if st.button("Close"):
+                        st.session_state.aml_popup_closed = True
+                        st.rerun()
+                        
+                
+                # --- Gene Comments Section ---
+                selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
+                
+                # Reset popup when disease changes
+                if "previous_disease" not in st.session_state:
+                    st.session_state.previous_disease = selected_disease
+                    st.session_state.aml_popup_closed = False
+                
+                if selected_disease != st.session_state.previous_disease:
+                    st.session_state.previous_disease = selected_disease
+                    st.session_state.aml_popup_closed = False
+                
+                # Show AML reminder when AML is selected
+                if selected_disease == "AML" and not st.session_state.aml_popup_closed:
+                    aml_reminder_popup()
+                
+                gene_input = st.text_input(
+                    "Enter one or more gene symbols (comma-separated, e.g. TP53, NRAS, FLT3):"
+                )
+                
+                # Two additional input boxes
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    medium_gene_input = st.text_input(
+                        "Medium confidence genes",
+                        placeholder="e.g. ASXL1, DNMT3A"
+                    )
+                
+                with col2:
+                    low_gene_input = st.text_input(
+                        "Low confidence genes",
+                        placeholder="e.g. TP53"
+                    )
+                
+                # Convert inputs to lists
+                input_genes = [
+                    gene.strip().upper()
+                    for gene in gene_input.split(",")
+                    if gene.strip()
+                ]
+                
+                # Preserve the formatting entered by the user
+                medium_genes = [
+                    gene.strip()
+                    for gene in medium_gene_input.split(",")
+                    if gene.strip()
+                ]
+                
+                low_genes = [
+                    gene.strip()
+                    for gene in low_gene_input.split(",")
+                    if gene.strip()
+                ]
+                
+                # Uppercase versions for matching only
+                medium_genes_upper = [
+                    gene.upper()
+                    for gene in medium_genes
+                ]
+                
+                low_genes_upper = [
+                    gene.upper()
+                    for gene in low_genes
+                ]
+                
+                # Continue only if genes have been entered
+                if selected_disease and input_genes:
+                    try:
+                
+                        # -----------------------------
+                        # Load gene comments
+                        # -----------------------------
+                        df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
+                        df.columns = ["Gene", "Relevant_comments"]
+                
+                        try:
+                            mode_df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="C")
+                            df["Mode"] = mode_df.iloc[:, 0]
+                        except:
+                            df["Mode"] = ""
+                
+                        # Preserve order entered by user
+                        filtered_rows = []
+                
+                        for gene in input_genes:
+                            matches = df[df["Gene"].str.upper() == gene]
+                            if not matches.empty:
+                                filtered_rows.append(matches)
+                
+                        if filtered_rows:
+                
+                            filtered_df = pd.concat(filtered_rows, ignore_index=True)
         
                     # -----------------------------
                     # Display gene comments
