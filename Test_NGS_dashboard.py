@@ -113,24 +113,6 @@ if selected_disease and gene_input:
                 hide_index=True
             )
 
-            # --- Report text ---
-            st.markdown("### Report text")
-
-            report_comments = []
-
-            # Preserve the order the user entered the genes
-            for gene in input_genes:
-                gene_rows = filtered_df[
-                    filtered_df["Gene"].str.upper() == gene
-                ]
-
-                for _, row in gene_rows.iterrows():
-                    report_comments.append(row["Relevant_comments"])
-
-            if report_comments:
-                report_text = " ".join(report_comments)
-                st.write(report_text)
-
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
 
