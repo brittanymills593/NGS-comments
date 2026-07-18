@@ -63,7 +63,7 @@ with st.sidebar:
     - Interpretation of variants >5% VAF only and TP53 + JAK2 at any level
     """)
 
-# AML reminder pop-up
+# AML reminder popup
 @st.dialog("AML sample reminder")
 def aml_reminder_popup():
     st.write(
@@ -79,14 +79,26 @@ def aml_reminder_popup():
     )
 
     if st.button("Close"):
+        st.session_state.aml_popup_closed = True
         st.rerun()
         
 
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
 
-# Show AML reminder every time AML is selected
-if selected_disease == "AML":
+selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
+
+# Reset popup when disease changes
+if "previous_disease" not in st.session_state:
+    st.session_state.previous_disease = selected_disease
+    st.session_state.aml_popup_closed = False
+
+if selected_disease != st.session_state.previous_disease:
+    st.session_state.previous_disease = selected_disease
+    st.session_state.aml_popup_closed = False
+
+# Show AML reminder when AML is selected
+if selected_disease == "AML" and not st.session_state.aml_popup_closed:
     aml_reminder_popup()
 
 gene_input = st.text_input(
