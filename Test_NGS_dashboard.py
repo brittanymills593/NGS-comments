@@ -64,10 +64,6 @@ with st.sidebar:
     """)
 
 # AML reminder pop-up
-if "aml_popup_shown" not in st.session_state:
-    st.session_state.aml_popup_shown = False
-
-
 @st.dialog("AML sample reminder")
 def aml_reminder_popup():
     st.write(
@@ -83,15 +79,14 @@ def aml_reminder_popup():
     )
 
     if st.button("Close"):
-        st.session_state.aml_popup_shown = True
         st.rerun()
         
 
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
 
-# Show AML reminder once when AML is selected
-if selected_disease == "AML" and not st.session_state.aml_popup_shown:
+# Show AML reminder every time AML is selected
+if selected_disease == "AML":
     aml_reminder_popup()
 
 gene_input = st.text_input(
