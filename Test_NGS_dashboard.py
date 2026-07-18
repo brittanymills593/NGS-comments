@@ -92,16 +92,28 @@ input_genes = [
     if gene.strip()
 ]
 
+# Preserve the formatting entered by the user
 medium_genes = [
-    gene.strip().upper()
+    gene.strip()
     for gene in medium_gene_input.split(",")
     if gene.strip()
 ]
 
 low_genes = [
-    gene.strip().upper()
+    gene.strip()
     for gene in low_gene_input.split(",")
     if gene.strip()
+]
+
+# Uppercase versions for matching only
+medium_genes_upper = [
+    gene.upper()
+    for gene in medium_genes
+]
+
+low_genes_upper = [
+    gene.upper()
+    for gene in low_genes
 ]
 
 # Continue only if genes have been entered
@@ -191,10 +203,11 @@ if selected_disease and input_genes:
                     ]
 
                     # Remove reported genes and low confidence genes
+                    # (keep the user's original formatting for display)
                     panel_gene_list = [
                         gene for gene in panel_gene_list
                         if gene.upper() not in input_genes
-                        and gene.upper() not in low_genes
+                        and gene.upper() not in low_genes_upper
                     ]
 
                     output_text.append(", ".join(panel_gene_list))
