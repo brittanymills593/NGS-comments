@@ -65,21 +65,55 @@ with st.sidebar:
 
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
+
 gene_input = st.text_input(
     "Enter one or more gene symbols (comma-separated, e.g. TP53, NRAS, FLT3):"
 )
 
-input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.strip()]
+# Two additional input boxes
+col1, col2 = st.columns(2)
 
+with col1:
+    medium_gene_input = st.text_input(
+        "Medium confidence genes",
+        placeholder="e.g. ASXL1, DNMT3A"
+    )
+
+with col2:
+    low_gene_input = st.text_input(
+        "Low confidence genes",
+        placeholder="e.g. TP53"
+    )
+
+# Convert inputs to lists
+input_genes = [
+    gene.strip().upper()
+    for gene in gene_input.split(",")
+    if gene.strip()
+]
+
+medium_genes = [
+    gene.strip().upper()
+    for gene in medium_gene_input.split(",")
+    if gene.strip()
+]
+
+low_genes = [
+    gene.strip().upper()
+    for gene in low_gene_input.split(",")
+    if gene.strip()
+]
+
+# Continue only if genes have been entered
 if selected_disease and input_genes:
     try:
+
         # -----------------------------
         # Load gene comments
         # -----------------------------
         df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
         df.columns = ["Gene", "Relevant_comments"]
 
-        # Load Mode column if present
         try:
             mode_df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="C")
             df["Mode"] = mode_df.iloc[:, 0]
@@ -133,7 +167,6 @@ if selected_disease and input_genes:
                 hide_index=True
             )
 
-
             # -----------------------------
             # Remaining panel genes
             # -----------------------------
@@ -150,16 +183,67 @@ if selected_disease and input_genes:
                     panel_genes = str(result.iloc[0]["Genes"])
 
                     panel_gene_list = [
-                        gene.strip() for gene in panel_genes.split(",")
+                        gene.strip()
+                        for gene in panel_genes.split(",")
                     ]
 
+                    # Remove reported genes
                     panel_gene_list = [
                         gene for gene in panel_gene_list
                         if gene.upper() not in input_genes
+                        and gene.upper() not in low_genes
                     ]
 
                     st.markdown("### Remaining panel genes")
                     st.write(", ".join(panel_gene_list))
+
+            # -----------------------------
+            # Automatic caveats
+            # -----------------------------
+            caveat_df = pd.read_excel(
+                EXCEL_FILE,
+                sheet_name="Caveats",
+                usecols="A:B"
+            )
+            caveat_df.columns = ["Caveat", "Comment"]
+
+            # Medium confidence
+            if medium_genes:
+
+                result = caveat_df[
+                    caveat_df["Caveat"].str.lower() == "medium confidence"
+                ]
+
+                if not result.empty:
+
+                    comment = result.iloc[0]["Comment"]
+
+                    if "[list genes]" in comment:
+                        comment = comment.replace(
+                            "[list genes]",
+                            ", ".join(medium_genes)
+                        )
+
+                    st.info(comment)
+
+            # Low confidence
+            if low_genes:
+
+                result = caveat_df[
+                    caveat_df["Caveat"].str.lower() == "low confidence"
+                ]
+
+                if not result.empty:
+
+                    comment = result.iloc[0]["Comment"]
+
+                    if "[list genes]" in comment:
+                        comment = comment.replace(
+                            "[list genes]",
+                            ", ".join(low_genes)
+                        )
+
+                    st.info(comment)
 
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
