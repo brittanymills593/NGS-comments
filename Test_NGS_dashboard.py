@@ -162,9 +162,6 @@ if input_genes:  # Only show once genes have been entered
 
     except Exception as e:
         st.error(f"Error loading automatic panel: {e}")
-
-except Exception as e:
-    st.error(f"Error loading automatic panel: {e}")
     
 
 # --- Panel Lookup Section ---
