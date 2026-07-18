@@ -144,8 +144,6 @@ if selected_disease and input_genes:
 
             filtered_df = pd.concat(filtered_rows, ignore_index=True)
 
-            st.success(f"Found {len(filtered_df)} matching comment(s):")
-
             show_mode = st.checkbox("Show Mode column")
 
             def format_mode(val):
