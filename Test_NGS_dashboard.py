@@ -22,6 +22,19 @@ EXCEL_FILE = "NGS_comments_automation.xlsx"
 # List of disease sheet names (must match the sheet names in the Excel file)
 DISEASE_SHEETS = ['AML', 'ALL', 'MDS', 'MPN', 'B lymphoid', 'T lymphoid', 'CLL', 'Myeloma', 'Histiocytic disorders']
 
+# Automatically selected panel for each disease
+DISEASE_TO_PANEL = {
+    "AML": "Myeloid panelv1.0",
+    "MDS": "Myeloid panelv1.0",
+    "MPN": "Myeloid panelv1.0",
+    "B lymphoid": "ChronicBlymphoidv4.0",
+    "T lymphoid": "chronicTlymphoidv4.0",
+    "CLL": "CLLv3.0",
+    "Myeloma": "Myelomav4.0",
+    "ALL": "ALLv4.0",
+    "Histiocytic disorders": "Histiocytosisv4.0"
+}
+
 # Streamlit app header with padding, no border/shadow
 col1, col2 = st.columns([3.5, 1.5])
 
@@ -116,21 +129,6 @@ if selected_disease and gene_input:
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
 
-
-
-
-# Automatically selected panel for each disease
-DISEASE_TO_PANEL = {
-    "AML": "Myeloid panelv1.0",
-    "MDS": "Myeloid panelv1.0",
-    "MPN": "Myeloid panelv1.0",
-    "B lymphoid": "ChronicBlymphoidv4.0",
-    "T lymphoid": "chronicTlymphoidv4.0",
-    "CLL": "CLLv3.0",
-    "Myeloma": "Myelomav4.0",
-    "ALL": "ALLv4.0",
-    "Histiocytic disorders": "Histiocytosisv4.0"
-}
 
 # --- Automatically display panel for selected disease ---
 if input_genes:  # Only show once genes have been entered
