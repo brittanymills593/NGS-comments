@@ -86,8 +86,6 @@ def aml_reminder_popup():
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
 
-selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
-
 # Reset popup when disease changes
 if "previous_disease" not in st.session_state:
     st.session_state.previous_disease = selected_disease
