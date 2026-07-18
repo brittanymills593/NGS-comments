@@ -168,8 +168,11 @@ if selected_disease and input_genes:
             )
 
             # -----------------------------
-            # Remaining panel genes
+            # Combined panel comment + caveats
             # -----------------------------
+            output_text = []
+
+            # Remaining panel genes
             panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")
 
             auto_panel = DISEASE_TO_PANEL.get(selected_disease)
@@ -187,19 +190,16 @@ if selected_disease and input_genes:
                         for gene in panel_genes.split(",")
                     ]
 
-                    # Remove reported genes
+                    # Remove reported genes and low confidence genes
                     panel_gene_list = [
                         gene for gene in panel_gene_list
                         if gene.upper() not in input_genes
                         and gene.upper() not in low_genes
                     ]
 
-                    st.markdown("### Remaining panel genes")
-                    st.write(", ".join(panel_gene_list))
+                    output_text.append(", ".join(panel_gene_list))
 
-            # -----------------------------
-            # Automatic caveats
-            # -----------------------------
+            # Load caveats
             caveat_df = pd.read_excel(
                 EXCEL_FILE,
                 sheet_name="Caveats",
@@ -224,7 +224,7 @@ if selected_disease and input_genes:
                             ", ".join(medium_genes)
                         )
 
-                    st.info(comment)
+                    output_text.append(comment)
 
             # Low confidence
             if low_genes:
@@ -243,13 +243,11 @@ if selected_disease and input_genes:
                             ", ".join(low_genes)
                         )
 
-                    st.info(comment)
+                    output_text.append(comment)
 
-        else:
-            st.warning("No comments found for the entered genes in the selected disease.")
-
-    except Exception as e:
-        st.error(f"Error loading gene comments: {e}")
+            # Display everything in one blue information box
+            if output_text:
+                st.info("\n\n".join(output_text))
     
 
 # --- Panel Lookup Section ---
