@@ -4,7 +4,6 @@ import os
 
 def run_old_dashboard():
 
-    st.title("Haem NGS Comments")
     st.set_page_config(layout="wide")
     
     st.markdown(
