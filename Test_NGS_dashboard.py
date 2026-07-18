@@ -2,6 +2,9 @@ import streamlit as st
 
 st.set_page_config(layout="wide")
 
+from old_dashboard import run_old_dashboard
+from new_dashboard import run_new_dashboard
+
 
 version = st.radio(
     "Select dashboard version:",
@@ -15,11 +18,8 @@ version = st.radio(
 
 if version == "Original version":
 
-    from old_dashboard import run_old_dashboard
     run_old_dashboard()
-
 
 else:
 
-    from new_dashboard import run_new_dashboard
     run_new_dashboard()
