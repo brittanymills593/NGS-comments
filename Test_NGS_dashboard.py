@@ -69,6 +69,7 @@ def aml_reminder_popup():
     st.write(
         """
         Remember to manually check **UBTF** for partial tandem duplication. Instructions on iPassport:
+        
         GEN-SOP 850: NGS analysis and Webserver Instructions (Version 2.0)
 
         Coordinates (GRCh38):
