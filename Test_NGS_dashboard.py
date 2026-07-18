@@ -133,14 +133,6 @@ if selected_disease and input_genes:
                 hide_index=True
             )
 
-            # -----------------------------
-            # Report text
-            # -----------------------------
-            st.markdown("### Report text")
-
-            report_text = " ".join(filtered_df["Relevant_comments"].tolist())
-
-            st.write(report_text)
 
             # -----------------------------
             # Remaining panel genes
