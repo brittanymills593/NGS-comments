@@ -176,38 +176,51 @@ if selected_disease and input_genes:
 
             filtered_df = pd.concat(filtered_rows, ignore_index=True)
 
-            show_mode = st.checkbox("Show Mode column")
+            # -----------------------------
+            # Display gene comments
+            # -----------------------------
+            if len(input_genes) == 1:
 
-            def format_mode(val):
-                if not isinstance(val, str):
-                    return val
+                # Single gene: print comment as normal text
+                st.write(filtered_df.iloc[0]["Relevant_comments"])
 
-                v = val.lower()
-
-                is_ts = "tumour suppressor" in v
-                is_onc = "oncogene" in v
-
-                if is_ts and not is_onc:
-                    return "🟢 Tumour suppressor"
-                elif is_onc and not is_ts:
-                    return "🔴 Oncogene"
-                elif is_ts and is_onc:
-                    return "🟢🔴 Oncogene / Tumour suppressor"
-                else:
-                    return val
-
-            filtered_df["Mode"] = filtered_df["Mode"].apply(format_mode)
-
-            if show_mode:
-                display_df = filtered_df
             else:
-                display_df = filtered_df.drop(columns=["Mode"])
 
-            st.dataframe(
-                display_df,
-                use_container_width=True,
-                hide_index=True
-            )
+                # Multiple genes: display table
+                st.success(f"Found {len(filtered_df)} matching comment(s):")
+
+                show_mode = st.checkbox("Show Mode column")
+
+                def format_mode(val):
+                    if not isinstance(val, str):
+                        return val
+
+                    v = val.lower()
+
+                    is_ts = "tumour suppressor" in v
+                    is_onc = "oncogene" in v
+
+                    if is_ts and not is_onc:
+                        return "🟢 Tumour suppressor"
+                    elif is_onc and not is_ts:
+                        return "🔴 Oncogene"
+                    elif is_ts and is_onc:
+                        return "🟢🔴 Oncogene / Tumour suppressor"
+                    else:
+                        return val
+
+                filtered_df["Mode"] = filtered_df["Mode"].apply(format_mode)
+
+                if show_mode:
+                    display_df = filtered_df
+                else:
+                    display_df = filtered_df.drop(columns=["Mode"])
+
+                st.dataframe(
+                    display_df,
+                    use_container_width=True,
+                    hide_index=True
+                )
 
             # -----------------------------
             # Combined panel comment + caveats
