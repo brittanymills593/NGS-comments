@@ -179,14 +179,16 @@ if selected_disease and input_genes:
             # -----------------------------
             # Display gene comments
             # -----------------------------
-            if len(input_genes) == 1:
+            gene_comment = filtered_df.iloc[0]["Relevant_comments"]
 
-                # Single gene: print comment as normal text
-                st.write(filtered_df.iloc[0]["Relevant_comments"])
+            if len(input_genes) == 1 and len(str(gene_comment)) < 250:
+
+                # Single short comment: print as normal text
+                st.write(gene_comment)
 
             else:
 
-                # Multiple genes: display table
+                # Multiple genes OR long single-gene comment: display table
                 st.success(f"Found {len(filtered_df)} matching comment(s):")
 
                 show_mode = st.checkbox("Show Mode column")
