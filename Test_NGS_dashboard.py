@@ -134,31 +134,35 @@ DISEASE_TO_PANEL = {
 }
 
 # --- Automatically display panel for selected disease ---
-try:
-    panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")
+if input_genes:  # Only show once genes have been entered
+    try:
+        panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")
 
-    auto_panel = DISEASE_TO_PANEL.get(selected_disease)
+        auto_panel = DISEASE_TO_PANEL.get(selected_disease)
 
-    if auto_panel:
-        result = panel_df[panel_df["Panel"] == auto_panel]
+        if auto_panel:
+            result = panel_df[panel_df["Panel"] == auto_panel]
 
-        if not result.empty:
-            panel_genes = result.iloc[0]["Genes"]
+            if not result.empty:
+                panel_genes = result.iloc[0]["Genes"]
 
-            # Split into list and remove any genes entered by the user
-            panel_gene_list = [
-                gene.strip() for gene in panel_genes.split(",")
-            ]
+                # Split into list and remove any genes entered by the user
+                panel_gene_list = [
+                    gene.strip() for gene in panel_genes.split(",")
+                ]
 
-            panel_gene_list = [
-                gene for gene in panel_gene_list
-                if gene.upper() not in input_genes
-            ]
+                panel_gene_list = [
+                    gene for gene in panel_gene_list
+                    if gene.upper() not in input_genes
+                ]
 
-            panel_text = ", ".join(panel_gene_list)
+                panel_text = ", ".join(panel_gene_list)
 
-            st.markdown("### Remaining panel genes")
-            st.write(panel_text)
+                st.markdown("### Panel comment")
+                st.write(panel_text)
+
+    except Exception as e:
+        st.error(f"Error loading automatic panel: {e}")
 
 except Exception as e:
     st.error(f"Error loading automatic panel: {e}")
