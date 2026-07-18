@@ -105,19 +105,44 @@ def run_new_dashboard ():
                "Enter one or more gene symbols (comma-separated, e.g. TP53, NRAS, FLT3):"
            )
            
+           # -----------------------------
+           # Clear confidence gene inputs when disease or genes change
+           # -----------------------------
+
+           if "previous_selected_disease" not in st.session_state:
+               st.session_state.previous_selected_disease = selected_disease
+
+           if "previous_gene_input" not in st.session_state:
+               st.session_state.previous_gene_input = gene_input
+
+
+           # Detect changes
+           if (
+               selected_disease != st.session_state.previous_selected_disease
+               or gene_input != st.session_state.previous_gene_input
+           ):
+               st.session_state.medium_gene_input = ""
+               st.session_state.low_gene_input = ""
+
+               st.session_state.previous_selected_disease = selected_disease
+               st.session_state.previous_gene_input = gene_input
+
+
            # Two additional input boxes
            col1, col2 = st.columns(2)
-           
+
            with col1:
                medium_gene_input = st.text_input(
                    "Medium confidence genes",
-                   placeholder="e.g. ASXL1, DNMT3A"
+                   placeholder="e.g. ASXL1, DNMT3A",
+                   key="medium_gene_input"
                )
-           
+
            with col2:
                low_gene_input = st.text_input(
                    "Low confidence genes",
-                   placeholder="e.g. TP53"
+                   placeholder="e.g. TP53",
+                   key="low_gene_input"
                )
            
            # Convert inputs to lists
