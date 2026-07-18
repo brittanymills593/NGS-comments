@@ -63,8 +63,36 @@ with st.sidebar:
     - Interpretation of variants >5% VAF only and TP53 + JAK2 at any level
     """)
 
+# AML reminder pop-up
+if "aml_popup_shown" not in st.session_state:
+    st.session_state.aml_popup_shown = False
+
+
+@st.dialog("AML sample reminder")
+def aml_reminder_popup():
+    st.write(
+        """
+        **AML samples:** remember to manually check **UBTF** for partial tandem duplication.
+
+        Instructions on iPassport:
+        **GEN-SOP 850: NGS analysis and Webserver Instructions (Version 2.0)**
+
+        Coordinates (GRCh38):
+        **chr17:44,210,790-44,210,949**
+        """
+    )
+
+    if st.button("Close"):
+        st.session_state.aml_popup_shown = True
+        st.rerun()
+        
+
 # --- Gene Comments Section ---
 selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
+
+# Show AML reminder once when AML is selected
+if selected_disease == "AML" and not st.session_state.aml_popup_shown:
+    aml_reminder_popup()
 
 gene_input = st.text_input(
     "Enter one or more gene symbols (comma-separated, e.g. TP53, NRAS, FLT3):"
