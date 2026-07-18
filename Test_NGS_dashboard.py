@@ -71,29 +71,37 @@ gene_input = st.text_input(
 
 input_genes = [gene.strip().upper() for gene in gene_input.split(",") if gene.strip()]
 
-if selected_disease and gene_input:
+if selected_disease and input_genes:
     try:
-        # Load safe base columns
+        # -----------------------------
+        # Load gene comments
+        # -----------------------------
         df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
-        df.columns = ['Gene', 'Relevant_comments']
+        df.columns = ["Gene", "Relevant_comments"]
 
-        # Try to load Mode column (C)
+        # Load Mode column if present
         try:
             mode_df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="C")
-            df['Mode'] = mode_df.iloc[:, 0]
+            df["Mode"] = mode_df.iloc[:, 0]
         except:
-            df['Mode'] = ""
+            df["Mode"] = ""
 
-        # Filter genes (same logic as original)
-        filtered_df = df[df['Gene'].str.upper().isin(input_genes)].copy()
+        # Preserve order entered by user
+        filtered_rows = []
 
-        if not filtered_df.empty:
+        for gene in input_genes:
+            matches = df[df["Gene"].str.upper() == gene]
+            if not matches.empty:
+                filtered_rows.append(matches)
+
+        if filtered_rows:
+
+            filtered_df = pd.concat(filtered_rows, ignore_index=True)
+
             st.success(f"Found {len(filtered_df)} matching comment(s):")
 
-            # --- Toggle ---
             show_mode = st.checkbox("Show Mode column")
 
-            # --- Format Mode with dots ---
             def format_mode(val):
                 if not isinstance(val, str):
                     return val
@@ -114,7 +122,6 @@ if selected_disease and gene_input:
 
             filtered_df["Mode"] = filtered_df["Mode"].apply(format_mode)
 
-            # --- IMPORTANT: build display dataframe cleanly ---
             if show_mode:
                 display_df = filtered_df
             else:
@@ -126,40 +133,47 @@ if selected_disease and gene_input:
                 hide_index=True
             )
 
+            # -----------------------------
+            # Report text
+            # -----------------------------
+            st.markdown("### Report text")
+
+            report_text = " ".join(filtered_df["Relevant_comments"].tolist())
+
+            st.write(report_text)
+
+            # -----------------------------
+            # Remaining panel genes
+            # -----------------------------
+            panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")
+
+            auto_panel = DISEASE_TO_PANEL.get(selected_disease)
+
+            if auto_panel:
+
+                result = panel_df[panel_df["Panel"] == auto_panel]
+
+                if not result.empty:
+
+                    panel_genes = str(result.iloc[0]["Genes"])
+
+                    panel_gene_list = [
+                        gene.strip() for gene in panel_genes.split(",")
+                    ]
+
+                    panel_gene_list = [
+                        gene for gene in panel_gene_list
+                        if gene.upper() not in input_genes
+                    ]
+
+                    st.markdown("### Remaining panel genes")
+                    st.write(", ".join(panel_gene_list))
+
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
 
-
-# --- Automatically display panel for selected disease ---
-if input_genes:  # Only show once genes have been entered
-    try:
-        panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")
-
-        auto_panel = DISEASE_TO_PANEL.get(selected_disease)
-
-        if auto_panel:
-            result = panel_df[panel_df["Panel"] == auto_panel]
-
-            if not result.empty:
-                panel_genes = result.iloc[0]["Genes"]
-
-                # Split into list and remove any genes entered by the user
-                panel_gene_list = [
-                    gene.strip() for gene in panel_genes.split(",")
-                ]
-
-                panel_gene_list = [
-                    gene for gene in panel_gene_list
-                    if gene.upper() not in input_genes
-                ]
-
-                panel_text = ", ".join(panel_gene_list)
-
-                st.markdown("### Panel comment")
-                st.write(panel_text)
-
     except Exception as e:
-        st.error(f"Error loading automatic panel: {e}")
+        st.error(f"Error loading gene comments: {e}")
     
 
 # --- Panel Lookup Section ---
