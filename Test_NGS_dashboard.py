@@ -179,16 +179,62 @@ if selected_disease and input_genes:
             # -----------------------------
             # Display gene comments
             # -----------------------------
-            gene_comment = filtered_df.iloc[0]["Relevant_comments"]
 
-            if len(input_genes) == 1 and len(str(gene_comment)) < 250:
+            # Create a version of comments with gene symbols removed
+            grouped_comments = {}
 
-                # Single short comment: print as normal text
-                st.write(gene_comment)
+            for _, row in filtered_df.iterrows():
+
+                gene = row["Gene"]
+                comment = row["Relevant_comments"]
+
+                # Remove gene symbol from comment for comparison
+                normalised_comment = (
+                    comment
+                    .replace(gene, "[GENE]")
+                    .replace(gene.upper(), "[GENE]")
+                )
+
+                if normalised_comment not in grouped_comments:
+                    grouped_comments[normalised_comment] = {
+                        "genes": [],
+                        "comment": comment
+                    }
+
+                grouped_comments[normalised_comment]["genes"].append(gene)
+
+
+            # Build combined comments
+            combined_comments = []
+
+            for item in grouped_comments.values():
+
+                genes = item["genes"]
+                comment = item["comment"]
+
+                if len(genes) > 1:
+
+                    # Replace gene placeholder with combined genes
+                    combined_comment = comment.replace(
+                        genes[0],
+                        " and ".join(genes) if len(genes) == 2 else ", ".join(genes[:-1]) + " and " + genes[-1]
+                    )
+
+                    combined_comments.append(combined_comment)
+
+                else:
+                    combined_comments.append(comment)
+
+
+            # If comments have successfully grouped into one short comment
+            if len(combined_comments) == 1 and len(str(combined_comments[0])) < 250:
+
+                st.write(combined_comments[0])
+
 
             else:
 
-                # Multiple genes OR long single-gene comment: display table
+                # Otherwise display table
                 st.success(f"Found {len(filtered_df)} matching comment(s):")
 
                 show_mode = st.checkbox("Show Mode column")
