@@ -116,8 +116,7 @@ if selected_disease and gene_input:
         else:
             st.warning("No comments found for the entered genes in the selected disease.")
 
-    except Exception as e:
-        st.error(f"Error loading gene comments: {e}")
+
 
 
 # Automatically selected panel for each disease
