@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+from difflib import SequenceMatcher
 
 st.set_page_config(layout="wide")
 st.markdown(
@@ -180,57 +181,72 @@ if selected_disease and input_genes:
             # Display gene comments
             # -----------------------------
 
-            # Create a version of comments with gene symbols removed
-            grouped_comments = {}
+            grouped_comments = []
 
-            for _, row in filtered_df.iterrows():
+            used_indices = set()
+
+            for i, row in filtered_df.iterrows():
+
+                if i in used_indices:
+                    continue
 
                 gene = row["Gene"]
                 comment = row["Relevant_comments"]
 
-                # Remove gene symbol from comment for comparison
-                normalised_comment = (
-                    comment
-                    .replace(gene, "[GENE]")
-                    .replace(gene.upper(), "[GENE]")
-                )
+                matching_genes = [gene]
 
-                if normalised_comment not in grouped_comments:
-                    grouped_comments[normalised_comment] = {
-                        "genes": [],
-                        "comment": comment
-                    }
+                for j, row2 in filtered_df.iterrows():
 
-                grouped_comments[normalised_comment]["genes"].append(gene)
+                    if j <= i or j in used_indices:
+                        continue
 
+                    gene2 = row2["Gene"]
+                    comment2 = row2["Relevant_comments"]
 
-            # Build combined comments
-            combined_comments = []
-
-            for item in grouped_comments.values():
-
-                genes = item["genes"]
-                comment = item["comment"]
-
-                if len(genes) > 1:
-
-                    # Replace gene placeholder with combined genes
-                    combined_comment = comment.replace(
-                        genes[0],
-                        " and ".join(genes) if len(genes) == 2 else ", ".join(genes[:-1]) + " and " + genes[-1]
+                    # Remove gene names for comparison
+                    clean_comment = (
+                        comment
+                        .replace(gene, "")
+                        .lower()
                     )
 
-                    combined_comments.append(combined_comment)
+                    clean_comment2 = (
+                        comment2
+                        .replace(gene2, "")
+                        .lower()
+                    )
+
+                    similarity = SequenceMatcher(
+                        None,
+                        clean_comment,
+                        clean_comment2
+                    ).ratio()
+
+                    # Group similar comments
+                    if similarity > 0.75:
+                        matching_genes.append(gene2)
+                        used_indices.add(j)
+
+                used_indices.add(i)
+
+                if len(matching_genes) > 1:
+
+                    # Use the first comment as the template
+                    combined_comment = comment.replace(
+                        gene,
+                        " and ".join(matching_genes)
+                    )
+
+                    grouped_comments.append(combined_comment)
 
                 else:
-                    combined_comments.append(comment)
+                    grouped_comments.append(comment)
 
 
-            # If comments have successfully grouped into one short comment
-            if len(combined_comments) == 1 and len(str(combined_comments[0])) < 250:
+            # If all comments have grouped into one short comment
+            if len(grouped_comments) == 1 and len(grouped_comments[0]) < 250:
 
-                st.write(combined_comments[0])
-
+                st.write(grouped_comments[0])
 
             else:
 
