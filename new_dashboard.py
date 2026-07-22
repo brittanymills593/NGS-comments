@@ -318,33 +318,41 @@ def run_new_dashboard ():
                        # -----------------------------
                        output_text = []
            
-                       # Remaining panel genes
-                       panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")
-           
-                       auto_panel = DISEASE_TO_PANEL.get(selected_disease)
-           
-                       if auto_panel:
-           
-                           result = panel_df[panel_df["Panel"] == auto_panel]
-           
-                           if not result.empty:
-           
-                               panel_genes = str(result.iloc[0]["Genes"])
-           
-                               panel_gene_list = [
-                                   gene.strip()
-                                   for gene in panel_genes.split(",")
-                               ]
-           
-                               # Remove reported genes and low confidence genes
-                               # (keep the user's original formatting for display)
-                               panel_gene_list = [
-                                   gene for gene in panel_gene_list
-                                   if gene.upper() not in input_genes
-                                   and gene.upper() not in low_genes_upper
-                               ]
-           
-                               output_text.append(", ".join(panel_gene_list))
+                      # Remaining panel genes
+                      panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")
+                      
+                      auto_panel = DISEASE_TO_PANEL.get(selected_disease)
+                      
+                      if auto_panel:
+                      
+                          result = panel_df[panel_df["Panel"] == auto_panel]
+                      
+                          if not result.empty:
+                      
+                              panel_genes = str(result.iloc[0]["Genes"])
+                      
+                              panel_gene_list = [
+                                  gene.strip()
+                                  for gene in panel_genes.split(",")
+                              ]
+                      
+                              # -----------------------------------------
+                              # Remove all detected genes and low confidence genes
+                              # -----------------------------------------
+                              # Create a set containing all genes to remove
+                              # This includes:
+                              # 1. All genes entered in the main gene input
+                              # 2. All low confidence genes
+                              genes_to_remove = set(input_genes + low_genes_upper)
+                      
+                              # Remove genes from the panel
+                              # Matching is case-insensitive and ignores spaces
+                              panel_gene_list = [
+                                  gene for gene in panel_gene_list
+                                  if gene.strip().upper() not in genes_to_remove
+                              ]
+                      
+                              output_text.append(", ".join(panel_gene_list))
            
                        # Load caveats
                        caveat_df = pd.read_excel(
