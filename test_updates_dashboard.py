@@ -297,7 +297,54 @@ def run_new_dashboard():
                 f"Error loading Standardised CNV data: {e}"
             )
 
-  
+    def display_focal_cnv_box(key):
+    
+        focal_cnv_input = st.text_input(
+            "Focal CNV",
+            placeholder="e.g. loss of CDKN2A, gain of ATM",
+            key=key
+        )
+    
+        focal_cnv_output = ""
+    
+        if focal_cnv_input.strip():
+    
+            focal_cnv_list = [
+                item.strip()
+                for item in focal_cnv_input.split(",")
+                if item.strip()
+            ]
+    
+            if len(focal_cnv_list) == 1:
+    
+                focal_cnv_output = (
+                    f"CNV analysis detected focal "
+                    f"{focal_cnv_list[0]}."
+                )
+    
+            elif len(focal_cnv_list) == 2:
+    
+                focal_cnv_output = (
+                    "CNV analysis detected focal "
+                    + " and ".join(focal_cnv_list)
+                    + "."
+                )
+    
+            else:
+    
+                focal_cnv_output = (
+                    "CNV analysis detected focal "
+                    + ", ".join(focal_cnv_list[:-1])
+                    + " and "
+                    + focal_cnv_list[-1]
+                    + "."
+                )
+    
+            st.write(focal_cnv_output)
+    
+        return focal_cnv_output
+
+    
     # --- Gene Comments Section ---
     selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
 
@@ -368,43 +415,39 @@ def run_new_dashboard():
     # AML
     # =========================================
     if selected_disease == "AML":
-
+    
         # Focal CNV / SV detected
         col1, col2 = st.columns(2)
-
+    
         with col1:
-            focal_cnv_input = st.text_input(
-                "Focal CNV",
-                placeholder="Enter focal CNV",
+            focal_cnv_output = display_focal_cnv_box(
                 key="aml_focal_cnv"
             )
-
+    
         with col2:
             sv_detected_input = st.text_input(
                 "SV detected",
                 placeholder="Enter SV detected",
                 key="aml_sv_detected"
             )
-
-
+    
         # Fusions / Germline significance
         col1, col2 = st.columns(2)
-
+    
         with col1:
             fusion_rt_pcr_input = st.text_input(
                 "Fusions detected by RT-PCR",
                 placeholder="Enter fusions detected by RT-PCR",
                 key="aml_fusions_rt_pcr"
             )
-
+    
         with col2:
             germline_significance_input = st.text_input(
                 "Gene with potential germline significance",
                 placeholder="Enter gene",
                 key="aml_germline_significance"
             )
-
-
+    
         # Caveats
         display_caveat_box(
             key="aml_caveat"
@@ -418,25 +461,22 @@ def run_new_dashboard():
         "MDS",
         "ALL"
     ]:
-
+    
         # Focal CNV / SV detected
         col1, col2 = st.columns(2)
-
+    
         with col1:
-            focal_cnv_input = st.text_input(
-                "Focal CNV",
-                placeholder="Enter focal CNV",
+            focal_cnv_output = display_focal_cnv_box(
                 key="mds_all_focal_cnv"
             )
-
+    
         with col2:
             sv_detected_input = st.text_input(
                 "SV detected",
                 placeholder="Enter SV detected",
                 key="mds_all_sv_detected"
             )
-
-
+    
         # Caveats
         display_caveat_box(
             key="mds_all_caveat"
@@ -451,28 +491,30 @@ def run_new_dashboard():
         "T lymphoid",
         "CLL"
     ]:
-
+    
         # Focal CNV / Standardised CNV
         col1, col2 = st.columns(2)
-
+    
         with col1:
-            focal_cnv_input = st.text_input(
-                "Focal CNV",
-                placeholder="Enter focal CNV",
+            focal_cnv_output = display_focal_cnv_box(
                 key="b_t_cll_focal_cnv"
             )
-
+    
         with col2:
             display_standardised_cnv_box(
                 selected_disease=selected_disease,
                 key="b_t_cll_standardised_cnv"
             )
-
-
+    
         # Caveats
         display_caveat_box(
             key="b_t_cll_caveat"
         )
+
+
+    # =========================================
+    # Write report
+    # =========================================
 
     # Convert inputs to lists
     input_genes = [
