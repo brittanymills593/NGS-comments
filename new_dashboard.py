@@ -378,24 +378,33 @@ def run_new_dashboard ():
                        # Combined panel comment + caveats
                        # -----------------------------
                        output_text = []
-           
-                      # Remaining panel genes
-                      panel_df = pd.read_excel(EXCEL_FILE, sheet_name="Panel")
-                      
-                      auto_panel = DISEASE_TO_PANEL.get(selected_disease)
-                      
-                      if auto_panel:
-                      
-                          result = panel_df[panel_df["Panel"] == auto_panel]
-                      
-                          if not result.empty:
-                      
-                              panel_genes = str(result.iloc[0]["Genes"])
-                      
-                              panel_gene_list = [
-                                  gene.strip()
-                                  for gene in panel_genes.split(",")
-                              ]
+
+                       # Remaining panel genes
+                       panel_df = pd.read_excel(
+                           EXCEL_FILE,
+                           sheet_name="Panel"
+                       )
+
+                       auto_panel = DISEASE_TO_PANEL.get(
+                           selected_disease
+                       )
+
+                       if auto_panel:
+
+                           result = panel_df[
+                               panel_df["Panel"] == auto_panel
+                           ]
+
+                           if not result.empty:
+
+                               panel_genes = str(
+                                   result.iloc[0]["Genes"]
+                               )
+
+                               panel_gene_list = [
+                                   gene.strip()
+                                   for gene in panel_genes.split(",")
+                               ]
                       
                               # -----------------------------------------
                               # Remove all detected genes and low confidence genes
@@ -466,7 +475,7 @@ def run_new_dashboard ():
                                output_text.append(comment)
                           
            
-                         # Low confidence
+                       # Low confidence
                        if low_genes:
 
                            result = caveat_df[
@@ -489,7 +498,7 @@ def run_new_dashboard ():
                                        ", ".join(low_genes)
                                    )
 
-                               output_text.append(comment)         
+                               output_text.append(comment)      
            
                       
            # --- Caveats Lookup Section ---
