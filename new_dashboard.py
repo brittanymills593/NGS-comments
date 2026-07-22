@@ -183,21 +183,48 @@ def run_new_dashboard ():
                    # -----------------------------
                    # Load gene comments
                    # -----------------------------
-                   df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="A:B")
+                   df = pd.read_excel(
+                       EXCEL_FILE,
+                       sheet_name=selected_disease,
+                       usecols="A:B"
+                   )
+
                    df.columns = ["Gene", "Relevant_comments"]
-           
+
+                   # Ensure Gene and Relevant_comments are always strings
+                   df["Gene"] = (
+                       df["Gene"]
+                       .fillna("")
+                       .astype(str)
+                       .str.strip()
+                   )
+
+                   df["Relevant_comments"] = (
+                       df["Relevant_comments"]
+                       .fillna("")
+                       .astype(str)
+                       .str.strip()
+                   )
+
                    try:
-                       mode_df = pd.read_excel(EXCEL_FILE, sheet_name=selected_disease, usecols="C")
+                       mode_df = pd.read_excel(
+                           EXCEL_FILE,
+                           sheet_name=selected_disease,
+                           usecols="C"
+                       )
                        df["Mode"] = mode_df.iloc[:, 0]
                    except:
                        df["Mode"] = ""
-           
+
                    # Preserve order entered by user
                    filtered_rows = []
                    genes_without_comments = []
 
                    for gene in input_genes:
-                       matches = df[df["Gene"].str.upper() == gene]
+
+                       matches = df[
+                           df["Gene"].str.upper() == gene
+                       ]
 
                        if not matches.empty:
 
@@ -210,14 +237,19 @@ def run_new_dashboard ():
                            )
 
                            if comment_values.eq("").all():
+
                                genes_without_comments.append(gene)
+
                            else:
+
                                # Only add genes with comments
                                filtered_rows.append(matches)
 
-                   # Display genes that have no comment in Excel
+                   # Display genes that have no comments
                    for gene in genes_without_comments:
-                       st.write(f"No comment found for '{gene}'.")
+                       st.write(
+                           f"No comment found for '{gene}'."
+                       )
 
                    # Continue only if genes with comments were found
                    if filtered_rows:
@@ -226,6 +258,8 @@ def run_new_dashboard ():
                            filtered_rows,
                            ignore_index=True
                        )
+                              
+
 
                        # Your existing comment grouping code continues here                             
            
@@ -241,9 +275,9 @@ def run_new_dashboard ():
            
                            if i in used_indices:
                                continue
-           
-                           gene = row["Gene"]
-                           comment = row["Relevant_comments"]
+
+                           gene = str(row["Gene"])
+                           comment = str(row["Relevant_comments"])
            
                            matching_genes = [gene]
            
@@ -251,9 +285,8 @@ def run_new_dashboard ():
            
                                if j <= i or j in used_indices:
                                    continue
-           
-                               gene2 = row2["Gene"]
-                               comment2 = row2["Relevant_comments"]
+                               gene2 = str(row2["Gene"])
+                               comment2 = str(row2["Relevant_comments"])           
            
                                # Remove gene names for comparison
                                clean_comment = (
@@ -296,8 +329,11 @@ def run_new_dashboard ():
            
            
                        # If all comments have grouped into one short comment
-                       if len(grouped_comments) == 1 and len(grouped_comments[0]) < 250:
-           
+                       if (
+                           len(grouped_comments) == 1
+                           and len(str(grouped_comments[0])) < 250
+                       ):
+                                  
                            st.write(grouped_comments[0])
            
                        else:
@@ -385,60 +421,77 @@ def run_new_dashboard ():
                            sheet_name="Caveats",
                            usecols="A:B"
                        )
+
                        caveat_df.columns = ["Caveat", "Comment"]
-           
+
+                       # Ensure Caveat and Comment are always strings
+                       caveat_df["Caveat"] = (
+                           caveat_df["Caveat"]
+                           .fillna("")
+                           .astype(str)
+                           .str.strip()
+                       )
+
+                       caveat_df["Comment"] = (
+                           caveat_df["Comment"]
+                           .fillna("")
+                           .astype(str)
+                           .str.strip()
+                       )
+
+                          
                        # Medium confidence
                        if medium_genes:
-           
+
                            result = caveat_df[
                                caveat_df["Caveat"].str.lower() == "medium confidence"
                            ]
-           
+
                            if not result.empty:
-           
+
                                comment = result.iloc[0]["Comment"]
-           
+
+                               # Handle blank Excel cells
+                               if pd.isna(comment):
+                                   comment = ""
+                               else:
+                                   comment = str(comment)
+
                                if "[list genes]" in comment:
                                    comment = comment.replace(
                                        "[list genes]",
                                        ", ".join(medium_genes)
                                    )
-           
+
                                output_text.append(comment)
+                          
            
-                       # Low confidence
+                         # Low confidence
                        if low_genes:
-           
+
                            result = caveat_df[
                                caveat_df["Caveat"].str.lower() == "low confidence"
                            ]
-           
+
                            if not result.empty:
-           
+
                                comment = result.iloc[0]["Comment"]
-           
+
+                               # Handle blank Excel cells
+                               if pd.isna(comment):
+                                   comment = ""
+                               else:
+                                   comment = str(comment)
+
                                if "[list genes]" in comment:
                                    comment = comment.replace(
                                        "[list genes]",
                                        ", ".join(low_genes)
                                    )
+
+                               output_text.append(comment)         
            
-                               output_text.append(comment)
-           
-                       # Display everything as normal text
-                       if output_text:
-                           st.write("\n\n".join(output_text))
-           
-                   else:
-                       st.warning("No comments found for the entered genes in the selected disease.")
-           
-               except Exception as e:
-                   st.error(f"Error loading gene comments: {e}")
-           
-           
-           
-           
-           
+                      
            # --- Caveats Lookup Section ---
            st.markdown("---")
            st.markdown("### Caveats Lookup (including CHIP and CNV)")
