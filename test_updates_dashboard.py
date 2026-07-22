@@ -340,10 +340,29 @@ def run_new_dashboard():
                     + "."
                 )
     
-            st.write(focal_cnv_output)
     
         return focal_cnv_output
 
+    def display_sv_detected_box(key):
+    
+        sv_detected_input = st.text_input(
+            "SV detected",
+            placeholder="e.g. FLT3 ITD",
+            key=key
+        )
+    
+        sv_detected_output = ""
+    
+        if sv_detected_input.strip():
+    
+            sv_detected_output = (
+                f"SV analysis detected "
+                f"{sv_detected_input.strip()}."
+            )
+    
+        return sv_detected_output
+
+    
     def parse_comma_separated_input(text, uppercase=False):
         """
         Convert comma-separated text into a list.
@@ -804,9 +823,7 @@ def run_new_dashboard():
             )
     
         with col2:
-            sv_detected_input = st.text_input(
-                "SV detected",
-                placeholder="Enter SV detected",
+            sv_detected_output = display_sv_detected_box(
                 key="aml_sv_detected"
             )
     
@@ -850,9 +867,7 @@ def run_new_dashboard():
             )
     
         with col2:
-            sv_detected_input = st.text_input(
-                "SV detected",
-                placeholder="Enter SV detected",
+            sv_detected_output = display_sv_detected_box(
                 key="mds_all_sv_detected"
             )
     
@@ -979,8 +994,19 @@ def run_new_dashboard():
                 # Build final report text
                 # -----------------------------
                 output_text = []
-    
-    
+                
+                # Focal CNV
+                if focal_cnv_output:
+                    output_text.append(
+                        focal_cnv_output
+                    )
+                
+                # SV detected
+                if sv_detected_output:
+                    output_text.append(
+                        sv_detected_output
+                    )
+                
                 # Remaining panel genes
                 remaining_panel_genes = (
                     get_remaining_panel_genes(
@@ -989,25 +1015,11 @@ def run_new_dashboard():
                         low_genes_upper
                     )
                 )
-    
+                
                 if remaining_panel_genes:
-    
                     output_text.append(
                         remaining_panel_genes
                     )
-    
-    
-                # Medium and Low confidence caveats
-                confidence_caveats = (
-                    get_confidence_caveats(
-                        medium_genes,
-                        low_genes
-                    )
-                )
-    
-                output_text.extend(
-                    confidence_caveats
-                )
     
     
                 # -----------------------------
