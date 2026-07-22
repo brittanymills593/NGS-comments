@@ -212,22 +212,24 @@ def run_new_dashboard():
         """
         Display a Standardised CNV dropdown using the CNV Excel sheet.
         CNV options are filtered based on the selected disease.
+    
+        Returns the selected CNV comment for inclusion in the report.
         """
-
+    
         try:
-
+    
             cnv_df = pd.read_excel(
                 EXCEL_FILE,
                 sheet_name="CNV",
                 usecols="A:C"
             )
-
+    
             cnv_df.columns = [
                 "Disease",
                 "Region",
                 "Comment"
             ]
-
+    
             # Ensure columns are always strings
             cnv_df["Disease"] = (
                 cnv_df["Disease"]
@@ -235,27 +237,26 @@ def run_new_dashboard():
                 .astype(str)
                 .str.strip()
             )
-
+    
             cnv_df["Region"] = (
                 cnv_df["Region"]
                 .fillna("")
                 .astype(str)
                 .str.strip()
             )
-
+    
             cnv_df["Comment"] = (
                 cnv_df["Comment"]
                 .fillna("")
                 .astype(str)
                 .str.strip()
             )
-
+    
             # Filter CNV options based on selected disease
             cnv_for_disease = cnv_df[
-                cnv_df["Disease"]
-                == selected_disease
+                cnv_df["Disease"] == selected_disease
             ]
-
+    
             standardised_cnv_options = (
                 [""]
                 + sorted(
@@ -265,37 +266,42 @@ def run_new_dashboard():
                     .tolist()
                 )
             )
-
+    
             selected_standardised_cnv = st.selectbox(
                 "Standardised CNV",
                 standardised_cnv_options,
                 key=key
             )
-
-            # Display comment for selected CNV
+    
+            # Return comment for selected CNV
             if selected_standardised_cnv:
-
+    
                 cnv_result = cnv_for_disease[
                     cnv_for_disease["Region"]
                     == selected_standardised_cnv
                 ]
-
+    
                 if not cnv_result.empty:
-
+    
                     cnv_comment = cnv_result.iloc[0]["Comment"]
-
+    
                     if pd.isna(cnv_comment):
                         cnv_comment = ""
                     else:
-                        cnv_comment = str(cnv_comment)
-
-                    st.write(cnv_comment)
-
+                        cnv_comment = str(cnv_comment).strip()
+    
+                    return cnv_comment
+    
+            return ""
+    
         except Exception as e:
-
+    
             st.error(
                 f"Error loading Standardised CNV data: {e}"
             )
+    
+            return ""
+        
 
     def display_focal_cnv_box(key):
     
@@ -810,6 +816,7 @@ def run_new_dashboard():
     # -----------------------------------------
 
     focal_cnv_output = ""
+    standardised_cnv_output = ""
     sv_detected_output = ""
     fusion_rt_pcr_input = ""
     germline_significance_input = ""
@@ -901,7 +908,7 @@ def run_new_dashboard():
             )
     
         with col2:
-            display_standardised_cnv_box(
+            standardised_cnv_output = display_standardised_cnv_box(
                 selected_disease=selected_disease,
                 key="b_t_cll_standardised_cnv"
             )
@@ -1010,12 +1017,18 @@ def run_new_dashboard():
     
     
     # -----------------------------
-    # Focal CNV
+    # Focal CNV / Standardised CNV
     # -----------------------------
     if focal_cnv_output:
     
         output_text.append(
             focal_cnv_output
+        )
+    
+    if standardised_cnv_output:
+    
+        output_text.append(
+            standardised_cnv_output
         )
     
     
