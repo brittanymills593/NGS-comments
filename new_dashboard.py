@@ -194,15 +194,40 @@ def run_new_dashboard ():
            
                    # Preserve order entered by user
                    filtered_rows = []
-           
+                   genes_without_comments = []
+
                    for gene in input_genes:
                        matches = df[df["Gene"].str.upper() == gene]
+
                        if not matches.empty:
-                           filtered_rows.append(matches)
-           
+
+                           # Check whether the gene has a comment
+                           comment_values = (
+                               matches["Relevant_comments"]
+                               .fillna("")
+                               .astype(str)
+                               .str.strip()
+                           )
+
+                           if comment_values.eq("").all():
+                               genes_without_comments.append(gene)
+                           else:
+                               # Only add genes with comments
+                               filtered_rows.append(matches)
+
+                   # Display genes that have no comment in Excel
+                   for gene in genes_without_comments:
+                       st.write(f"No comment found for '{gene}'.")
+
+                   # Continue only if genes with comments were found
                    if filtered_rows:
-           
-                       filtered_df = pd.concat(filtered_rows, ignore_index=True)
+
+                       filtered_df = pd.concat(
+                           filtered_rows,
+                           ignore_index=True
+                       )
+
+                       # Your existing comment grouping code continues here                             
            
                        # -----------------------------
                        # Display gene comments
