@@ -809,6 +809,12 @@ def run_new_dashboard():
     # Disease-specific additional input boxes
     # -----------------------------------------
 
+    focal_cnv_output = ""
+    sv_detected_output = ""
+    fusion_rt_pcr_input = ""
+    germline_significance_input = ""
+
+
     # =========================================
     # AML
     # =========================================
@@ -936,7 +942,10 @@ def run_new_dashboard():
     ]
     
     
-    # Continue only if genes have been entered
+    # =========================================
+    # Display gene comments
+    # =========================================
+    
     if selected_disease and input_genes:
     
         try:
@@ -948,7 +957,6 @@ def run_new_dashboard():
                 selected_disease
             )
     
-    
             # -----------------------------
             # Find matching gene comments
             # -----------------------------
@@ -959,14 +967,12 @@ def run_new_dashboard():
                 )
             )
     
-    
             # Display genes without comments
             for gene in genes_without_comments:
     
                 st.write(
                     f"No comment found for '{gene}'."
                 )
-    
     
             # -----------------------------
             # Display gene comments
@@ -989,56 +995,86 @@ def run_new_dashboard():
                     grouped_comments
                 )
     
-    
-                # -----------------------------
-                # Build final report text
-                # -----------------------------
-                output_text = []
-                
-                # Focal CNV
-                if focal_cnv_output:
-                    output_text.append(
-                        focal_cnv_output
-                    )
-                
-                # SV detected
-                if sv_detected_output:
-                    output_text.append(
-                        sv_detected_output
-                    )
-                
-                # Remaining panel genes
-                remaining_panel_genes = (
-                    get_remaining_panel_genes(
-                        selected_disease,
-                        input_genes,
-                        low_genes_upper
-                    )
-                )
-                
-                if remaining_panel_genes:
-                    output_text.append(
-                        remaining_panel_genes
-                    )
-    
-    
-                # -----------------------------
-                # Display final report text
-                # -----------------------------
-                if output_text:
-    
-                    st.write(
-                        "\n\n".join(
-                            output_text
-                        )
-                    )
-    
-    
         except Exception as e:
     
             st.error(
                 f"Error loading gene comments: {e}"
             )
+    
+    
+    # =========================================
+    # Build final report text
+    # =========================================
+    
+    output_text = []
+    
+    
+    # -----------------------------
+    # Focal CNV
+    # -----------------------------
+    if focal_cnv_output:
+    
+        output_text.append(
+            focal_cnv_output
+        )
+    
+    
+    # -----------------------------
+    # SV detected
+    # -----------------------------
+    if sv_detected_output:
+    
+        output_text.append(
+            sv_detected_output
+        )
+    
+    
+    # -----------------------------
+    # Remaining panel genes
+    # -----------------------------
+    if selected_disease and input_genes:
+    
+        remaining_panel_genes = (
+            get_remaining_panel_genes(
+                selected_disease,
+                input_genes,
+                low_genes_upper
+            )
+        )
+    
+        if remaining_panel_genes:
+    
+            output_text.append(
+                remaining_panel_genes
+            )
+    
+    
+    # -----------------------------
+    # Medium and Low confidence caveats
+    # -----------------------------
+    confidence_caveats = (
+        get_confidence_caveats(
+            medium_genes,
+            low_genes
+        )
+    )
+    
+    output_text.extend(
+        confidence_caveats
+    )
+    
+    
+    # =========================================
+    # Display final report
+    # =========================================
+    
+    if output_text:
+    
+        st.write(
+            "\n\n".join(
+                output_text
+            )
+        )
 
 
 
