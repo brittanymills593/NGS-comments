@@ -344,6 +344,385 @@ def run_new_dashboard():
     
         return focal_cnv_output
 
+    def parse_comma_separated_input(text, uppercase=False):
+        """
+        Convert comma-separated text into a list.
+    
+        If uppercase=True, convert entries to uppercase.
+        Otherwise, preserve the user's formatting.
+        """
+    
+        if not text:
+            return []
+    
+        values = [
+            item.strip()
+            for item in text.split(",")
+            if item.strip()
+        ]
+    
+        if uppercase:
+            values = [
+                item.upper()
+                for item in values
+            ]
+    
+        return values
+
+    def load_gene_comments(disease):
+        """
+        Load gene comments and Mode information
+        from the selected disease Excel sheet.
+        """
+    
+        df = pd.read_excel(
+            EXCEL_FILE,
+            sheet_name=disease,
+            usecols="A:B"
+        )
+    
+        df.columns = [
+            "Gene",
+            "Relevant_comments"
+        ]
+    
+        # Ensure Gene and comments are strings
+        df["Gene"] = (
+            df["Gene"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+        )
+    
+        df["Relevant_comments"] = (
+            df["Relevant_comments"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+        )
+    
+        # Load Mode column
+        try:
+    
+            mode_df = pd.read_excel(
+                EXCEL_FILE,
+                sheet_name=disease,
+                usecols="C"
+            )
+    
+            df["Mode"] = (
+                mode_df.iloc[:, 0]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+            )
+    
+        except Exception:
+    
+            df["Mode"] = ""
+    
+        return df
+
+    def filter_gene_comments(df, input_genes):
+        """
+        Find matching gene comments while preserving
+        the order entered by the user.
+    
+        Returns:
+        filtered_rows
+        genes_without_comments
+        """
+    
+        filtered_rows = []
+        genes_without_comments = []
+    
+        for gene in input_genes:
+    
+            matches = df[
+                df["Gene"].str.upper() == gene
+            ]
+    
+            if matches.empty:
+                continue
+    
+            comment_values = (
+                matches["Relevant_comments"]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+            )
+    
+            if comment_values.eq("").all():
+    
+                genes_without_comments.append(gene)
+    
+            else:
+    
+                filtered_rows.append(matches)
+    
+        return filtered_rows, genes_without_comments
+
+
+    def group_similar_comments(filtered_df):
+    """
+    Group similar gene comments using SequenceMatcher.
+    """
+
+    grouped_comments = []
+    used_indices = set()
+
+    for i, row in filtered_df.iterrows():
+
+        if i in used_indices:
+            continue
+
+        gene = str(row["Gene"])
+        comment = str(row["Relevant_comments"])
+
+        matching_genes = [gene]
+
+        for j, row2 in filtered_df.iterrows():
+
+            if j <= i or j in used_indices:
+                continue
+
+            gene2 = str(row2["Gene"])
+            comment2 = str(row2["Relevant_comments"])
+
+            # Remove gene names before comparing comments
+            clean_comment = (
+                comment
+                .replace(gene, "")
+                .lower()
+            )
+
+            clean_comment2 = (
+                comment2
+                .replace(gene2, "")
+                .lower()
+            )
+
+            similarity = SequenceMatcher(
+                None,
+                clean_comment,
+                clean_comment2
+            ).ratio()
+
+            if similarity > 0.92:
+
+                matching_genes.append(gene2)
+                used_indices.add(j)
+
+        used_indices.add(i)
+
+        if len(matching_genes) > 1:
+
+            combined_comment = comment.replace(
+                gene,
+                " and ".join(matching_genes)
+            )
+
+            grouped_comments.append(
+                combined_comment
+            )
+
+        else:
+
+            grouped_comments.append(
+                comment
+            )
+
+    return grouped_comments
+
+
+    def format_mode(val):
+    
+        if not isinstance(val, str):
+            return val
+    
+        v = val.lower()
+    
+        is_ts = "tumour suppressor" in v
+        is_onc = "oncogene" in v
+    
+        if is_ts and not is_onc:
+            return "🟢 Tumour suppressor"
+    
+        elif is_onc and not is_ts:
+            return "🔴 Oncogene"
+    
+        elif is_ts and is_onc:
+            return "🟢🔴 Oncogene / Tumour suppressor"
+    
+        else:
+            return val
+    
+
+    def display_gene_comments(filtered_df, grouped_comments):
+
+        # If all comments have grouped into one short comment
+        if (
+            len(grouped_comments) == 1
+            and len(str(grouped_comments[0])) < 250
+        ):
+    
+            st.write(
+                grouped_comments[0]
+            )
+    
+        else:
+    
+            st.success(
+                f"Found {len(filtered_df)} matching comment(s):"
+            )
+    
+            show_mode = st.checkbox(
+                "Show Mode column"
+            )
+    
+            filtered_df = filtered_df.copy()
+    
+            filtered_df["Mode"] = (
+                filtered_df["Mode"]
+                .apply(format_mode)
+            )
+    
+            if show_mode:
+    
+                display_df = filtered_df
+    
+            else:
+    
+                display_df = filtered_df.drop(
+                    columns=["Mode"]
+                )
+    
+            st.dataframe(
+                display_df,
+                use_container_width=True,
+                hide_index=True
+            )
+
+    def get_remaining_panel_genes(
+        selected_disease,
+        input_genes,
+        low_genes_upper
+    ):
+        """
+        Return the remaining panel genes after removing
+        detected genes and low-confidence genes.
+        """
+    
+        panel_df = pd.read_excel(
+            EXCEL_FILE,
+            sheet_name="Panel"
+        )
+    
+        auto_panel = DISEASE_TO_PANEL.get(
+            selected_disease
+        )
+    
+        if not auto_panel:
+            return ""
+    
+        result = panel_df[
+            panel_df["Panel"] == auto_panel
+        ]
+    
+        if result.empty:
+            return ""
+    
+        panel_genes = str(
+            result.iloc[0]["Genes"]
+        )
+    
+        panel_gene_list = [
+            gene.strip()
+            for gene in panel_genes.split(",")
+        ]
+    
+        genes_to_remove = set(
+            input_genes
+            + low_genes_upper
+        )
+    
+        panel_gene_list = [
+            gene
+            for gene in panel_gene_list
+            if gene.strip().upper()
+            not in genes_to_remove
+        ]
+    
+        return ", ".join(
+            panel_gene_list
+        )
+
+    def get_confidence_caveats(
+    medium_genes,
+    low_genes
+    ):
+        """
+        Return Medium and Low confidence caveats
+        for inclusion in the final report.
+        """
+    
+        output = []
+    
+        caveat_df = pd.read_excel(
+            EXCEL_FILE,
+            sheet_name="Caveats",
+            usecols="A:B"
+        )
+    
+        caveat_df.columns = [
+            "Caveat",
+            "Comment"
+        ]
+    
+        caveat_df["Caveat"] = (
+            caveat_df["Caveat"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+        )
+    
+        caveat_df["Comment"] = (
+            caveat_df["Comment"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+        )
+    
+        for genes, caveat_name in [
+            (medium_genes, "medium confidence"),
+            (low_genes, "low confidence")
+        ]:
+    
+            if not genes:
+                continue
+    
+            result = caveat_df[
+                caveat_df["Caveat"].str.lower()
+                == caveat_name
+            ]
+    
+            if result.empty:
+                continue
+    
+            comment = result.iloc[0]["Comment"]
+    
+            if "[list genes]" in comment:
+    
+                comment = comment.replace(
+                    "[list genes]",
+                    ", ".join(genes)
+                )
+    
+            if comment:
+                output.append(comment)
+    
+        return output
+
     
     # --- Gene Comments Section ---
     selected_disease = st.selectbox("Select Disease Type", DISEASE_SHEETS)
@@ -515,382 +894,136 @@ def run_new_dashboard():
     # =========================================
     # Write report
     # =========================================
-
+    
     # Convert inputs to lists
-    input_genes = [
-        gene.strip().upper()
-        for gene in gene_input.split(",")
-        if gene.strip()
-    ]
-
-    # Preserve the formatting entered by the user
-    medium_genes = [
-        gene.strip()
-        for gene in medium_gene_input.split(",")
-        if gene.strip()
-    ]
-
-    low_genes = [
-        gene.strip()
-        for gene in low_gene_input.split(",")
-        if gene.strip()
-    ]
-
+    input_genes = parse_comma_separated_input(
+        gene_input,
+        uppercase=True
+    )
+    
+    medium_genes = parse_comma_separated_input(
+        medium_gene_input
+    )
+    
+    low_genes = parse_comma_separated_input(
+        low_gene_input
+    )
+    
     # Uppercase versions for matching only
     medium_genes_upper = [
         gene.upper()
         for gene in medium_genes
     ]
-
+    
     low_genes_upper = [
         gene.upper()
         for gene in low_genes
     ]
-
+    
+    
     # Continue only if genes have been entered
     if selected_disease and input_genes:
+    
         try:
-           
+    
             # -----------------------------
             # Load gene comments
             # -----------------------------
-            df = pd.read_excel(
-                EXCEL_FILE,
-                sheet_name=selected_disease,
-                usecols="A:B"
+            df = load_gene_comments(
+                selected_disease
             )
-
-            df.columns = ["Gene", "Relevant_comments"]
-
-            # Ensure Gene and Relevant_comments are always strings
-            df["Gene"] = (
-                df["Gene"]
-                .fillna("")
-                .astype(str)
-                .str.strip()
-            )
-
-            df["Relevant_comments"] = (
-                df["Relevant_comments"]
-                .fillna("")
-                .astype(str)
-                .str.strip()
-            )
-
-            try:
-                mode_df = pd.read_excel(
-                    EXCEL_FILE,
-                    sheet_name=selected_disease,
-                    usecols="C"
+    
+    
+            # -----------------------------
+            # Find matching gene comments
+            # -----------------------------
+            filtered_rows, genes_without_comments = (
+                filter_gene_comments(
+                    df,
+                    input_genes
                 )
-                df["Mode"] = mode_df.iloc[:, 0]
-            except:
-                df["Mode"] = ""
-
-            # Preserve order entered by user
-            filtered_rows = []
-            genes_without_comments = []
-
-            for gene in input_genes:
-
-                matches = df[
-                    df["Gene"].str.upper() == gene
-                ]
-
-                if not matches.empty:
-
-                    # Check whether the gene has a comment
-                    comment_values = (
-                        matches["Relevant_comments"]
-                        .fillna("")
-                        .astype(str)
-                        .str.strip()
-                    )
-
-                    if comment_values.eq("").all():
-
-                        genes_without_comments.append(gene)
-
-                    else:
-
-                        # Only add genes with comments
-                        filtered_rows.append(matches)
-
-            # Display genes that have no comments
+            )
+    
+    
+            # Display genes without comments
             for gene in genes_without_comments:
+    
                 st.write(
                     f"No comment found for '{gene}'."
                 )
-
-            # Continue only if genes with comments were found
+    
+    
+            # -----------------------------
+            # Display gene comments
+            # -----------------------------
             if filtered_rows:
-
+    
                 filtered_df = pd.concat(
                     filtered_rows,
                     ignore_index=True
                 )
-
-                # Your existing comment grouping code continues here                         
-           
-                # -----------------------------
-                # Display gene comments
-                # -----------------------------
-
-                grouped_comments = []
-
-                used_indices = set()
-
-                for i, row in filtered_df.iterrows():
-
-                    if i in used_indices:
-                        continue
-
-                    gene = str(row["Gene"])
-                    comment = str(row["Relevant_comments"])
-
-                    matching_genes = [gene]
-
-                    for j, row2 in filtered_df.iterrows():
-
-                        if j <= i or j in used_indices:
-                            continue
-
-                        gene2 = str(row2["Gene"])
-                        comment2 = str(row2["Relevant_comments"])
-
-                        # Remove gene names for comparison
-                        clean_comment = (
-                            comment
-                            .replace(gene, "")
-                            .lower()
-                        )
-
-                        clean_comment2 = (
-                            comment2
-                            .replace(gene2, "")
-                            .lower()
-                        )
-
-                        similarity = SequenceMatcher(
-                            None,
-                            clean_comment,
-                            clean_comment2
-                        ).ratio()
-
-                        # Group similar comments
-                        if similarity > 0.92:
-                            matching_genes.append(gene2)
-                            used_indices.add(j)
-
-                    used_indices.add(i)
-
-                    if len(matching_genes) > 1:
-
-                        # Use the first comment as the template
-                        combined_comment = comment.replace(
-                            gene,
-                            " and ".join(matching_genes)
-                        )
-
-                        grouped_comments.append(combined_comment)
-
-                    else:
-                        grouped_comments.append(comment)
-
-                # If all comments have grouped into one short comment
-                if (
-                    len(grouped_comments) == 1
-                    and len(str(grouped_comments[0])) < 250
-                ):
-
-                    st.write(grouped_comments[0])
-
-                else:
-
-                    # Otherwise display table
-                    st.success(
-                        f"Found {len(filtered_df)} matching comment(s):"
+    
+                grouped_comments = (
+                    group_similar_comments(
+                        filtered_df
                     )
-
-                    show_mode = st.checkbox("Show Mode column")
-
-                    def format_mode(val):
-                        if not isinstance(val, str):
-                            return val
-
-                        v = val.lower()
-
-                        is_ts = "tumour suppressor" in v
-                        is_onc = "oncogene" in v
-
-                        if is_ts and not is_onc:
-                            return "🟢 Tumour suppressor"
-                        elif is_onc and not is_ts:
-                            return "🔴 Oncogene"
-                        elif is_ts and is_onc:
-                            return "🟢🔴 Oncogene / Tumour suppressor"
-                        else:
-                            return val
-
-                    filtered_df["Mode"] = filtered_df["Mode"].apply(
-                        format_mode
-                    )
-
-                    if show_mode:
-                        display_df = filtered_df
-                    else:
-                        display_df = filtered_df.drop(
-                            columns=["Mode"]
-                        )
-
-                    st.dataframe(
-                        display_df,
-                        use_container_width=True,
-                        hide_index=True
-                    )
-           
+                )
+    
+                display_gene_comments(
+                    filtered_df,
+                    grouped_comments
+                )
+    
+    
                 # -----------------------------
-                # Combined panel comment + caveats
+                # Build final report text
                 # -----------------------------
                 output_text = []
-
+    
+    
                 # Remaining panel genes
-                panel_df = pd.read_excel(
-                    EXCEL_FILE,
-                    sheet_name="Panel"
-                )
-
-                auto_panel = DISEASE_TO_PANEL.get(
-                    selected_disease
-                )
-
-                if auto_panel:
-
-                    result = panel_df[
-                        panel_df["Panel"] == auto_panel
-                    ]
-
-                    if not result.empty:
-
-                        panel_genes = str(
-                            result.iloc[0]["Genes"]
-                        )
-
-                        panel_gene_list = [
-                            gene.strip()
-                            for gene in panel_genes.split(",")
-                        ]
-
-                        # -----------------------------------------
-                        # Remove all detected genes and low confidence genes
-                        # -----------------------------------------
-
-                        # Create a set containing all genes to remove
-                        # This includes:
-                        # 1. All genes entered in the main gene input
-                        # 2. All low confidence genes
-                        genes_to_remove = set(
-                            input_genes + low_genes_upper
-                        )
-
-                        # Remove genes from the panel
-                        # Matching is case-insensitive and ignores spaces
-                        panel_gene_list = [
-                            gene
-                            for gene in panel_gene_list
-                            if gene.strip().upper() not in genes_to_remove
-                        ]
-
-                        output_text.append(
-                            ", ".join(panel_gene_list)
-                        )
-
-                # Load caveats
-                caveat_df = pd.read_excel(
-                    EXCEL_FILE,
-                    sheet_name="Caveats",
-                    usecols="A:B"
-                )
-
-                caveat_df.columns = [
-                    "Caveat",
-                    "Comment"
-                ]
-
-                # Ensure Caveat and Comment are always strings
-                caveat_df["Caveat"] = (
-                    caveat_df["Caveat"]
-                    .fillna("")
-                    .astype(str)
-                    .str.strip()
-                )
-
-                caveat_df["Comment"] = (
-                    caveat_df["Comment"]
-                    .fillna("")
-                    .astype(str)
-                    .str.strip()
-                )
-
-                # Medium confidence
-                if medium_genes:
-
-                    result = caveat_df[
-                        caveat_df["Caveat"].str.lower()
-                        == "medium confidence"
-                    ]
-
-                    if not result.empty:
-
-                        comment = result.iloc[0]["Comment"]
-
-                        # Handle blank Excel cells
-                        if pd.isna(comment):
-                            comment = ""
-                        else:
-                            comment = str(comment)
-
-                        if "[list genes]" in comment:
-                            comment = comment.replace(
-                                "[list genes]",
-                                ", ".join(medium_genes)
-                            )
-
-                        output_text.append(comment)
-
-                # Low confidence
-                if low_genes:
-
-                    result = caveat_df[
-                        caveat_df["Caveat"].str.lower()
-                        == "low confidence"
-                    ]
-
-                    if not result.empty:
-
-                        comment = result.iloc[0]["Comment"]
-
-                        # Handle blank Excel cells
-                        if pd.isna(comment):
-                            comment = ""
-                        else:
-                            comment = str(comment)
-
-                        if "[list genes]" in comment:
-                            comment = comment.replace(
-                                "[list genes]",
-                                ", ".join(low_genes)
-                            )
-
-                        output_text.append(comment)
-
-                # Display everything as normal text
-                if output_text:
-                    st.write(
-                        "\n\n".join(output_text)
+                remaining_panel_genes = (
+                    get_remaining_panel_genes(
+                        selected_disease,
+                        input_genes,
+                        low_genes_upper
                     )
-
+                )
+    
+                if remaining_panel_genes:
+    
+                    output_text.append(
+                        remaining_panel_genes
+                    )
+    
+    
+                # Medium and Low confidence caveats
+                confidence_caveats = (
+                    get_confidence_caveats(
+                        medium_genes,
+                        low_genes
+                    )
+                )
+    
+                output_text.extend(
+                    confidence_caveats
+                )
+    
+    
+                # -----------------------------
+                # Display final report text
+                # -----------------------------
+                if output_text:
+    
+                    st.write(
+                        "\n\n".join(
+                            output_text
+                        )
+                    )
+    
+    
         except Exception as e:
+    
             st.error(
                 f"Error loading gene comments: {e}"
             )
@@ -899,7 +1032,6 @@ def run_new_dashboard():
 
 
 
-  
 
                
     # --- Panel Lookup Section ---
