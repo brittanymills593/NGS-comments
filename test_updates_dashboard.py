@@ -464,76 +464,76 @@ def run_new_dashboard():
 
 
     def group_similar_comments(filtered_df):
-    """
-    Group similar gene comments using SequenceMatcher.
-    """
-
-    grouped_comments = []
-    used_indices = set()
-
-    for i, row in filtered_df.iterrows():
-
-        if i in used_indices:
-            continue
-
-        gene = str(row["Gene"])
-        comment = str(row["Relevant_comments"])
-
-        matching_genes = [gene]
-
-        for j, row2 in filtered_df.iterrows():
-
-            if j <= i or j in used_indices:
+        """
+        Group similar gene comments using SequenceMatcher.
+        """
+    
+        grouped_comments = []
+        used_indices = set()
+    
+        for i, row in filtered_df.iterrows():
+    
+            if i in used_indices:
                 continue
-
-            gene2 = str(row2["Gene"])
-            comment2 = str(row2["Relevant_comments"])
-
-            # Remove gene names before comparing comments
-            clean_comment = (
-                comment
-                .replace(gene, "")
-                .lower()
-            )
-
-            clean_comment2 = (
-                comment2
-                .replace(gene2, "")
-                .lower()
-            )
-
-            similarity = SequenceMatcher(
-                None,
-                clean_comment,
-                clean_comment2
-            ).ratio()
-
-            if similarity > 0.92:
-
-                matching_genes.append(gene2)
-                used_indices.add(j)
-
-        used_indices.add(i)
-
-        if len(matching_genes) > 1:
-
-            combined_comment = comment.replace(
-                gene,
-                " and ".join(matching_genes)
-            )
-
-            grouped_comments.append(
-                combined_comment
-            )
-
-        else:
-
-            grouped_comments.append(
-                comment
-            )
-
-    return grouped_comments
-
+    
+            gene = str(row["Gene"])
+            comment = str(row["Relevant_comments"])
+    
+            matching_genes = [gene]
+    
+            for j, row2 in filtered_df.iterrows():
+    
+                if j <= i or j in used_indices:
+                    continue
+    
+                gene2 = str(row2["Gene"])
+                comment2 = str(row2["Relevant_comments"])
+    
+                # Remove gene names before comparing comments
+                clean_comment = (
+                    comment
+                    .replace(gene, "")
+                    .lower()
+                )
+    
+                clean_comment2 = (
+                    comment2
+                    .replace(gene2, "")
+                    .lower()
+                )
+    
+                similarity = SequenceMatcher(
+                    None,
+                    clean_comment,
+                    clean_comment2
+                ).ratio()
+    
+                if similarity > 0.92:
+    
+                    matching_genes.append(gene2)
+                    used_indices.add(j)
+    
+            used_indices.add(i)
+    
+            if len(matching_genes) > 1:
+    
+                combined_comment = comment.replace(
+                    gene,
+                    " and ".join(matching_genes)
+                )
+    
+                grouped_comments.append(
+                    combined_comment
+                )
+    
+            else:
+    
+                grouped_comments.append(
+                    comment
+                )
+    
+        return grouped_comments
+    
 
     def format_mode(val):
     
