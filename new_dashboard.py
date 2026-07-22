@@ -532,8 +532,14 @@ def run_new_dashboard():
                         "\n\n".join(output_text)
                     )
 
+        except Exception as e:
+            st.error(
+                f"Error loading gene comments: {e}"
+            )
+
 
     # --- Caveats Lookup Section ---
+    st.markdown("---")
     st.markdown("---")
     st.markdown("### Caveats Lookup (including CHIP and CNV)")
 
