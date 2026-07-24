@@ -2,8 +2,8 @@ import streamlit as st
 
 st.set_page_config(layout="wide")
 
-from test_updates_dashboard import run_new_dashboard
 from old_dashboard import run_old_dashboard
+from new_dashboard import run_new_dashboard
 
 
 version = st.radio(
