@@ -391,74 +391,74 @@ def run_new_dashboard():
                         hide_index=True
                     )
            
-                # -----------------------------
-                # Combined panel comment + caveats
-                # -----------------------------
-                output_text = []
+            # -----------------------------
+            # Combined panel comment + caveats
+            # -----------------------------
+            output_text = []
 
-                # Remaining panel genes
-                panel_df = pd.read_excel(
-                    EXCEL_FILE,
-                    sheet_name="Panel"
-                )
+            # Remaining panel genes
+            panel_df = pd.read_excel(
+                EXCEL_FILE,
+                sheet_name="Panel"
+            )
 
-                auto_panel = DISEASE_TO_PANEL.get(
-                    selected_disease
-                )
+            auto_panel = DISEASE_TO_PANEL.get(
+                selected_disease
+            )
 
-                if auto_panel:
+            if auto_panel:
 
-                    result = panel_df[
-                        panel_df["Panel"] == auto_panel
+                result = panel_df[
+                    panel_df["Panel"] == auto_panel
+                ]
+
+                if not result.empty:
+
+                    panel_text = str(
+                        result.iloc[0]["Genes"]
+                    )
+                    
+                    # Split the fixed introductory text from the gene list
+                    marker = (
+                        "No pathogenic/likely pathogenic variants were detected in the "
+                        "regions analysed within the "
+                    )
+                    
+                    parts = panel_text.split(marker, 1)
+                    
+                    if len(parts) == 2:
+                        intro = parts[0] + marker
+                        gene_string = parts[1]
+                    else:
+                        intro = ""
+                        gene_string = panel_text
+                    
+                    # Remove the trailing " genes."
+                    if gene_string.endswith(" genes."):
+                        gene_string = gene_string[:-len(" genes.")]
+                    
+                    # Create the list of panel genes
+                    panel_gene_list = [
+                        gene.strip()
+                        for gene in gene_string.split(",")
                     ]
-
-                    if not result.empty:
-
-                        panel_text = str(
-                            result.iloc[0]["Genes"]
-                        )
-                        
-                        # Split the fixed introductory text from the gene list
-                        marker = (
-                            "No pathogenic/likely pathogenic variants were detected in the "
-                            "regions analysed within the "
-                        )
-                        
-                        parts = panel_text.split(marker, 1)
-                        
-                        if len(parts) == 2:
-                            intro = parts[0] + marker
-                            gene_string = parts[1]
-                        else:
-                            intro = ""
-                            gene_string = panel_text
-                        
-                        # Remove the trailing " genes."
-                        if gene_string.endswith(" genes."):
-                            gene_string = gene_string[:-len(" genes.")]
-                        
-                        # Create the list of panel genes
-                        panel_gene_list = [
-                            gene.strip()
-                            for gene in gene_string.split(",")
-                        ]
-                        
-                        # Normalise the genes to remove
-                        genes_to_remove = {
-                            gene.strip().upper()
-                            for gene in input_genes + low_genes_upper
-                        }
-                        
-                        # Remove detected genes
-                        panel_gene_list = [
-                            gene
-                            for gene in panel_gene_list
-                            if gene.upper() not in genes_to_remove
-                        ]
-                        
-                        output_text.append(
-                            intro + ", ".join(panel_gene_list) + " genes."
-                        )
+                    
+                    # Normalise the genes to remove
+                    genes_to_remove = {
+                        gene.strip().upper()
+                        for gene in input_genes + low_genes_upper
+                    }
+                    
+                    # Remove detected genes
+                    panel_gene_list = [
+                        gene
+                        for gene in panel_gene_list
+                        if gene.upper() not in genes_to_remove
+                    ]
+                    
+                    output_text.append(
+                        intro + ", ".join(panel_gene_list) + " genes."
+                    )
                         
 
 
