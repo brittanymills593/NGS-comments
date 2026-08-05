@@ -431,10 +431,23 @@ def run_new_dashboard():
                         # This includes:
                         # 1. All genes entered in the main gene input
                         # 2. All low confidence genes
-                        genes_to_remove = set(
-                            input_genes + low_genes_upper
-                        )
+                        genes_to_remove = {
+                            gene.strip().upper()
+                            for gene in input_genes + low_genes_upper
+                        }
 
+
+
+                        st.write("Selected disease:", selected_disease)
+                        st.write("Auto panel:", auto_panel)
+                        st.write("Genes to remove:", genes_to_remove)
+                        
+                        st.write("Panel gene list:")
+                        for gene in panel_gene_list:
+                            st.write(repr(gene))
+
+
+    
                         # Remove genes from the panel
                         # Matching is case-insensitive and ignores spaces
                         panel_gene_list = [
@@ -446,6 +459,15 @@ def run_new_dashboard():
                         output_text.append(
                             ", ".join(panel_gene_list)
                         )
+
+
+
+                        st.write("Remaining:")
+                        for gene in panel_gene_list:
+                            st.write(repr(gene))
+
+
+
 
                 # Load caveats
                 caveat_df = pd.read_excel(
