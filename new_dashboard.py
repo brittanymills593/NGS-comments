@@ -456,32 +456,10 @@ def run_new_dashboard():
                             if gene.upper() not in genes_to_remove
                         ]
                         
-
-                        # -----------------------------------------
-                        # Remove all detected genes and low confidence genes
-                        # -----------------------------------------
-
-                        # Create a set containing all genes to remove
-                        # This includes:
-                        # 1. All genes entered in the main gene input
-                        # 2. All low confidence genes
-                        genes_to_remove = {
-                            gene.strip().upper()
-                            for gene in input_genes + low_genes_upper
-                        }
-
-    
-                        # Remove genes from the panel
-                        # Matching is case-insensitive and ignores spaces
-                        panel_gene_list = [
-                            gene
-                            for gene in panel_gene_list
-                            if gene.strip().upper() not in genes_to_remove
-                        ]
-
                         output_text.append(
-                            ", ".join(panel_gene_list)
+                            intro + ", ".join(panel_gene_list) + " genes."
                         )
+                        
 
 
                 # Load caveats
