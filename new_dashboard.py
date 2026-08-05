@@ -456,10 +456,6 @@ def run_new_dashboard():
                             if gene.upper() not in genes_to_remove
                         ]
                         
-                        # Rebuild the original sentence
-                        output_text.append(
-                            intro + ", ".join(panel_gene_list) + " genes."
-                        )
 
                         # -----------------------------------------
                         # Remove all detected genes and low confidence genes
