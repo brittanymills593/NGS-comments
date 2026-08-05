@@ -414,14 +414,52 @@ def run_new_dashboard():
 
                     if not result.empty:
 
-                        panel_genes = str(
+                        panel_text = str(
                             result.iloc[0]["Genes"]
                         )
-
+                        
+                        # Split the fixed introductory text from the gene list
+                        marker = (
+                            "No pathogenic/likely pathogenic variants were detected in the "
+                            "regions analysed within the "
+                        )
+                        
+                        parts = panel_text.split(marker, 1)
+                        
+                        if len(parts) == 2:
+                            intro = parts[0] + marker
+                            gene_string = parts[1]
+                        else:
+                            intro = ""
+                            gene_string = panel_text
+                        
+                        # Remove the trailing " genes."
+                        if gene_string.endswith(" genes."):
+                            gene_string = gene_string[:-len(" genes.")]
+                        
+                        # Create the list of panel genes
                         panel_gene_list = [
                             gene.strip()
-                            for gene in panel_genes.split(",")
+                            for gene in gene_string.split(",")
                         ]
+                        
+                        # Normalise the genes to remove
+                        genes_to_remove = {
+                            gene.strip().upper()
+                            for gene in input_genes + low_genes_upper
+                        }
+                        
+                        # Remove detected genes
+                        panel_gene_list = [
+                            gene
+                            for gene in panel_gene_list
+                            if gene.upper() not in genes_to_remove
+                        ]
+                        
+                        # Rebuild the original sentence
+                        output_text.append(
+                            intro + ", ".join(panel_gene_list) + " genes."
+                        )
 
                         # -----------------------------------------
                         # Remove all detected genes and low confidence genes
@@ -436,17 +474,6 @@ def run_new_dashboard():
                             for gene in input_genes + low_genes_upper
                         }
 
-
-
-                        st.write("Selected disease:", selected_disease)
-                        st.write("Auto panel:", auto_panel)
-                        st.write("Genes to remove:", genes_to_remove)
-                        
-                        st.write("Panel gene list:")
-                        for gene in panel_gene_list:
-                            st.write(repr(gene))
-
-
     
                         # Remove genes from the panel
                         # Matching is case-insensitive and ignores spaces
@@ -459,14 +486,6 @@ def run_new_dashboard():
                         output_text.append(
                             ", ".join(panel_gene_list)
                         )
-
-
-
-                        st.write("Remaining:")
-                        for gene in panel_gene_list:
-                            st.write(repr(gene))
-
-
 
 
                 # Load caveats
