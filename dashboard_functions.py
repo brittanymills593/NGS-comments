@@ -728,55 +728,139 @@ low_genes
 
 
 
-# -----------------------------------------
-# Display Germline information on right
-# -----------------------------------------
+def germline_lookup(excel_file):
 
-if st.session_state.get(
-    "germline_panel_open",
-    False
-):
+    try:
 
-    panel_gene = st.session_state.get(
-        "germline_selected_gene",
-        ""
-    )
-
-    panel_comment = st.session_state.get(
-        "germline_selected_comment",
-        ""
-    )
-
-    # Create space on the left and information panel on the right
-    left_column, right_column = st.columns(
-        [2, 1]
-    )
-
-    with right_column:
-
-        st.markdown(
-            f"### {panel_gene}"
+        germline_df = pd.read_excel(
+            excel_file,
+            sheet_name="Germline",
+            usecols="A:B"
         )
 
-        st.write(
-            panel_comment
+        germline_df.columns = [
+            "Gene",
+            "Comment"
+        ]
+
+        # Clean data
+        germline_df["Gene"] = (
+            germline_df["Gene"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
         )
 
-        if st.button(
-            "Close",
-            key="close_germline_panel"
+        germline_df["Comment"] = (
+            germline_df["Comment"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+        )
+
+        # Remove blank genes
+        germline_df = germline_df[
+            germline_df["Gene"] != ""
+        ]
+
+        # -------------------------------------------------
+        # Gene selection
+        # -------------------------------------------------
+
+        selected_gene = st.selectbox(
+            "Germline gene",
+            germline_df["Gene"].tolist(),
+            index=None,
+            placeholder="Select a gene",
+            key="germline_gene"
+        )
+
+        # -------------------------------------------------
+        # View button
+        # -------------------------------------------------
+
+        if selected_gene:
+
+            if st.button(
+                "View germline information",
+                key="germline_view_button"
+            ):
+
+                selected_row = germline_df[
+                    germline_df["Gene"] == selected_gene
+                ]
+
+                if not selected_row.empty:
+
+                    st.session_state[
+                        "germline_selected_gene"
+                    ] = selected_gene
+
+                    st.session_state[
+                        "germline_selected_comment"
+                    ] = str(
+                        selected_row.iloc[0]["Comment"]
+                    ).strip()
+
+                    st.session_state[
+                        "germline_panel_open"
+                    ] = True
+
+        # -------------------------------------------------
+        # Right-hand information panel
+        # -------------------------------------------------
+
+        if st.session_state.get(
+            "germline_panel_open",
+            False
         ):
 
-            st.session_state[
-                "germline_panel_open"
-            ] = False
+            panel_gene = st.session_state.get(
+                "germline_selected_gene",
+                ""
+            )
 
-            st.session_state[
-                "germline_selected_gene"
-            ] = None
+            panel_comment = st.session_state.get(
+                "germline_selected_comment",
+                ""
+            )
 
-            st.session_state[
-                "germline_selected_comment"
-            ] = None
+            # Create the right-hand panel
+            left_space, right_panel = st.columns(
+                [2, 1]
+            )
 
-            st.rerun()
+            with right_panel:
+
+                st.markdown(
+                    f"**{panel_gene}**"
+                )
+
+                st.write(
+                    panel_comment
+                )
+
+                if st.button(
+                    "Close",
+                    key="close_germline_panel"
+                ):
+
+                    st.session_state[
+                        "germline_panel_open"
+                    ] = False
+
+                    st.session_state[
+                        "germline_selected_gene"
+                    ] = ""
+
+                    st.session_state[
+                        "germline_selected_comment"
+                    ] = ""
+
+                    st.rerun()
+
+    except Exception as e:
+
+        st.error(
+            f"Error loading Germline information: {e}"
+        )
