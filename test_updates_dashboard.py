@@ -410,8 +410,6 @@ def run_new_dashboard():
     # =========================================================
     # GERMLINE LOOKUP
     # =========================================================
-
-    df.germline_lookup(EXCEL_FILE)
     
     MYELOID_DISEASES = [
         "AML",
