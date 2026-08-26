@@ -11,7 +11,7 @@ def run_test_dashboard():
     # SETTINGS
     # =========================================================
 
-    EXCEL_FILE = "NGS_comments_automation.xlsx"
+    EXCEL_FILE = "NGS_comments_automation_further_review.xlsx"
 
     DISEASE_SHEETS = [
         "AML",
