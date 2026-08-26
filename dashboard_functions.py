@@ -720,22 +720,8 @@ low_genes
 
 
 def germline_lookup(excel_file):
-    """
-    Germline gene lookup for myeloid diseases.
-
-    Reads:
-        Column A = Gene
-        Column B = Comment
-
-    Allows the user to select a gene and open
-    the corresponding comment in a right-hand panel.
-    """
 
     try:
-
-        # -------------------------------------------------
-        # Load Germline sheet
-        # -------------------------------------------------
 
         germline_df = pd.read_excel(
             excel_file,
@@ -748,10 +734,7 @@ def germline_lookup(excel_file):
             "Comment"
         ]
 
-        # -------------------------------------------------
         # Clean data
-        # -------------------------------------------------
-
         germline_df["Gene"] = (
             germline_df["Gene"]
             .fillna("")
@@ -766,14 +749,13 @@ def germline_lookup(excel_file):
             .str.strip()
         )
 
-        # Remove blank genes
         germline_df = germline_df[
             germline_df["Gene"] != ""
         ]
 
-        # -------------------------------------------------
-        # Gene dropdown
-        # -------------------------------------------------
+        # -----------------------------------------
+        # Select Germline gene
+        # -----------------------------------------
 
         selected_gene = st.selectbox(
             "Germline gene",
@@ -783,9 +765,9 @@ def germline_lookup(excel_file):
             key="germline_gene"
         )
 
-        # -------------------------------------------------
-        # Open information button
-        # -------------------------------------------------
+        # -----------------------------------------
+        # View information button
+        # -----------------------------------------
 
         if selected_gene:
 
@@ -795,18 +777,23 @@ def germline_lookup(excel_file):
             ):
 
                 st.session_state.germline_panel_open = True
+                st.session_state.germline_selected_gene = selected_gene
 
-        # -------------------------------------------------
-        # Right-hand panel
-        # -------------------------------------------------
+        # -----------------------------------------
+        # Right-hand information panel
+        # -----------------------------------------
 
         if st.session_state.get(
             "germline_panel_open",
             False
         ):
 
+            panel_gene = st.session_state.get(
+                "germline_selected_gene"
+            )
+
             selected_row = germline_df[
-                germline_df["Gene"] == selected_gene
+                germline_df["Gene"] == panel_gene
             ]
 
             if not selected_row.empty:
@@ -860,7 +847,7 @@ def germline_lookup(excel_file):
                         </div>
 
                         <div class="germline-gene">
-                            {selected_gene}
+                            {panel_gene}
                         </div>
 
                         <div>
@@ -878,7 +865,6 @@ def germline_lookup(excel_file):
                 ):
 
                     st.session_state.germline_panel_open = False
-
                     st.rerun()
 
     except Exception as e:
