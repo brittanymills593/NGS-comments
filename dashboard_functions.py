@@ -763,9 +763,9 @@ def germline_lookup(excel_file):
             germline_df["Gene"] != ""
         ]
 
-        # -------------------------------------------------
+        # -----------------------------------------
         # Gene selection
-        # -------------------------------------------------
+        # -----------------------------------------
 
         selected_gene = st.selectbox(
             "Germline gene",
@@ -775,9 +775,9 @@ def germline_lookup(excel_file):
             key="germline_gene"
         )
 
-        # -------------------------------------------------
+        # -----------------------------------------
         # View button
-        # -------------------------------------------------
+        # -----------------------------------------
 
         if selected_gene:
 
@@ -792,23 +792,21 @@ def germline_lookup(excel_file):
 
                 if not selected_row.empty:
 
-                    st.session_state[
-                        "germline_selected_gene"
-                    ] = selected_gene
+                    st.session_state.germline_panel_open = True
+                    st.session_state.germline_selected_gene = (
+                        selected_gene
+                    )
+                    st.session_state.germline_selected_comment = (
+                        str(
+                            selected_row.iloc[0]["Comment"]
+                        ).strip()
+                    )
 
-                    st.session_state[
-                        "germline_selected_comment"
-                    ] = str(
-                        selected_row.iloc[0]["Comment"]
-                    ).strip()
+                    st.rerun()
 
-                    st.session_state[
-                        "germline_panel_open"
-                    ] = True
-
-        # -------------------------------------------------
-        # Right-hand information panel
-        # -------------------------------------------------
+        # -----------------------------------------
+        # Floating right-hand panel
+        # -----------------------------------------
 
         if st.session_state.get(
             "germline_panel_open",
@@ -825,37 +823,56 @@ def germline_lookup(excel_file):
                 ""
             )
 
-            # Create the right-hand panel
-            left_space, right_panel = st.columns(
-                [2, 1]
+            # Panel
+            st.markdown(
+                f"""
+                <div style="
+                    position: fixed;
+                    top: 0;
+                    right: 0;
+                    width: 400px;
+                    height: 100vh;
+                    background: white;
+                    padding: 30px;
+                    box-shadow: -5px 0 15px rgba(0,0,0,0.15);
+                    z-index: 999999;
+                    overflow-y: auto;
+                    box-sizing: border-box;
+                ">
+                    <h3 style="
+                        color: #2E004F;
+                        margin-top: 20px;
+                    ">
+                        Germline information
+                    </h3>
+
+                    <h4>
+                        {panel_gene}
+                    </h4>
+
+                    <p style="
+                        line-height: 1.6;
+                    ">
+                        {panel_comment}
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
 
-            with right_panel:
+            # Close button needs to sit above the panel
+            close_col = st.empty()
 
-                st.markdown(
-                    f"**{panel_gene}**"
-                )
-
-                st.write(
-                    panel_comment
-                )
+            with close_col:
 
                 if st.button(
                     "Close",
                     key="close_germline_panel"
                 ):
 
-                    st.session_state[
-                        "germline_panel_open"
-                    ] = False
-
-                    st.session_state[
-                        "germline_selected_gene"
-                    ] = ""
-
-                    st.session_state[
-                        "germline_selected_comment"
-                    ] = ""
+                    st.session_state.germline_panel_open = False
+                    st.session_state.germline_selected_gene = ""
+                    st.session_state.germline_selected_comment = ""
 
                     st.rerun()
 
