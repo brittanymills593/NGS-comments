@@ -408,7 +408,7 @@ def run_test_dashboard():
             )
 
     # =========================================================
-    # GERMLINE LOOKUP
+    # MYELOID LOOKUPS
     # =========================================================
     
     MYELOID_DISEASES = [
@@ -423,16 +423,32 @@ def run_test_dashboard():
         "MPN unconfirmed",
         "Systemic mastocytosis",
     ]
-
+    
+    caveat_comment = ""
+    
     if selected_disease in MYELOID_DISEASES:
-
-        st.markdown(
-            "### Germline lookup"
-        )
-
-        df.germline_lookup(
-            EXCEL_FILE
-        )
+    
+        col1, col2 = st.columns(2)
+    
+        # -----------------------------------------------------
+        # Germline lookup
+        # -----------------------------------------------------
+    
+        with col1:
+    
+            df.germline_lookup(
+                EXCEL_FILE
+            )
+    
+        # -----------------------------------------------------
+        # Caveat selection
+        # -----------------------------------------------------
+    
+        with col2:
+    
+            caveat_comment = df.get_caveat_comment(
+                EXCEL_FILE
+            )
 
     # =========================================================
     # CONVERT GENE INPUTS
@@ -581,6 +597,18 @@ def run_test_dashboard():
                     cll_comment
                 )
 
+
+            # ---------------------------------------------------------
+            # Myeloid caveat
+            # This is deliberately LAST
+            # ---------------------------------------------------------
+            
+            if caveat_comment:
+            
+                output_text.append(
+                    caveat_comment
+                )
+                
             # -------------------------------------------------
             # Display final text
             # -------------------------------------------------
