@@ -49,7 +49,7 @@ def load_caveat_options():
 
 def display_caveat_box(key):
     """
-    Display a Caveats dropdown and the corresponding
+    Display a Caveats dropdown and return the corresponding
     comment from the Caveats Excel sheet.
     """
 
@@ -66,8 +66,7 @@ def display_caveat_box(key):
         if selected_caveat:
 
             caveat_result = caveat_df[
-                caveat_df["Caveat"]
-                == selected_caveat
+                caveat_df["Caveat"] == selected_caveat
             ]
 
             if not caveat_result.empty:
@@ -96,13 +95,23 @@ def display_caveat_box(key):
                             caveat_gene_input
                         )
 
-                st.write(caveat_comment)
+                    else:
+                        # Don't return the unresolved placeholder
+                        return ""
+
+                # IMPORTANT:
+                # Return the comment rather than displaying it here
+                return caveat_comment
+
+        return ""
 
     except Exception as e:
 
         st.error(
             f"Error loading Caveats data: {e}"
         )
+
+        return ""
 
 
 def display_standardised_cnv_box(selected_disease, key):
