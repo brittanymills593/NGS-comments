@@ -644,3 +644,173 @@ from difflib import SequenceMatcher
                 output.append(comment)
     
         return output
+
+
+
+    def germline_lookup(excel_file):
+        """
+        Germline gene lookup for myeloid diseases.
+    
+        Reads:
+            Column A = Gene
+            Column B = Comment
+    
+        Allows the user to select a gene and open
+        the corresponding comment in a right-hand panel.
+        """
+    
+        try:
+    
+            # -------------------------------------------------
+            # Load Germline sheet
+            # -------------------------------------------------
+    
+            germline_df = pd.read_excel(
+                excel_file,
+                sheet_name="Germline",
+                usecols="A:B"
+            )
+    
+            germline_df.columns = [
+                "Gene",
+                "Comment"
+            ]
+    
+            # -------------------------------------------------
+            # Clean data
+            # -------------------------------------------------
+    
+            germline_df["Gene"] = (
+                germline_df["Gene"]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+            )
+    
+            germline_df["Comment"] = (
+                germline_df["Comment"]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+            )
+    
+            # Remove blank genes
+            germline_df = germline_df[
+                germline_df["Gene"] != ""
+            ]
+    
+            # -------------------------------------------------
+            # Gene dropdown
+            # -------------------------------------------------
+    
+            selected_gene = st.selectbox(
+                "Germline gene",
+                options=germline_df["Gene"].tolist(),
+                index=None,
+                placeholder="Select a gene",
+                key="germline_gene"
+            )
+    
+            # -------------------------------------------------
+            # Open information button
+            # -------------------------------------------------
+    
+            if selected_gene:
+    
+                if st.button(
+                    "View germline information",
+                    key="germline_view_button"
+                ):
+    
+                    st.session_state.germline_panel_open = True
+    
+            # -------------------------------------------------
+            # Right-hand panel
+            # -------------------------------------------------
+    
+            if st.session_state.get(
+                "germline_panel_open",
+                False
+            ):
+    
+                selected_row = germline_df[
+                    germline_df["Gene"] == selected_gene
+                ]
+    
+                if not selected_row.empty:
+    
+                    comment = str(
+                        selected_row.iloc[0]["Comment"]
+                    ).strip()
+    
+                    st.markdown(
+                        """
+                        <style>
+    
+                        .germline-panel {
+                            position: fixed;
+                            top: 0;
+                            right: 0;
+                            width: 420px;
+                            height: 100vh;
+                            background-color: white;
+                            padding: 30px;
+                            box-shadow: -4px 0px 12px rgba(0,0,0,0.2);
+                            z-index: 999999;
+                            overflow-y: auto;
+                        }
+    
+                        .germline-title {
+                            color: #2E004F;
+                            font-size: 24px;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                        }
+    
+                        .germline-gene {
+                            color: #2E004F;
+                            font-size: 20px;
+                            font-weight: bold;
+                            margin-bottom: 15px;
+                        }
+    
+                        </style>
+                        """,
+                        unsafe_allow_html=True
+                    )
+    
+                    st.markdown(
+                        f"""
+                        <div class="germline-panel">
+    
+                            <div class="germline-title">
+                                Germline information
+                            </div>
+    
+                            <div class="germline-gene">
+                                {selected_gene}
+                            </div>
+    
+                            <div>
+                                {comment}
+                            </div>
+    
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+    
+                    if st.button(
+                        "Close",
+                        key="close_germline_panel"
+                    ):
+    
+                        st.session_state.germline_panel_open = False
+    
+                        st.rerun()
+    
+        except Exception as e:
+    
+            st.error(
+                f"Error loading Germline information: {e}"
+            )
