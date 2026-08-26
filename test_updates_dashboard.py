@@ -446,8 +446,8 @@ def run_test_dashboard():
     
         with col2:
     
-            caveat_comment = df.get_caveat_comment(
-                EXCEL_FILE
+            caveat_comment = df.display_caveat_box(
+                key="myeloid_caveat"
             )
 
     # =========================================================
