@@ -2,9 +2,9 @@ import streamlit as st
 
 st.set_page_config(layout="wide")
 
-from test_updates_dashboard import test_updates_dashboard
+from test_updates_dashboard import run_test_dashboard
 
-run_test_updates_dashboard()
+run_test_dashboard()
 
 
 # import streamlit as st
