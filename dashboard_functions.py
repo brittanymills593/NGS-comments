@@ -729,6 +729,15 @@ low_genes
 
 
 def germline_lookup(excel_file):
+    """
+    Germline gene lookup.
+
+    Column A of the Germline sheet = Gene
+    Column B = Comment
+
+    Select a gene and click the button to view
+    the corresponding information.
+    """
 
     try:
 
@@ -758,24 +767,25 @@ def germline_lookup(excel_file):
             .str.strip()
         )
 
+        # Remove blank genes
         germline_df = germline_df[
             germline_df["Gene"] != ""
         ]
 
         # -----------------------------------------
-        # Select Germline gene
+        # Gene selection
         # -----------------------------------------
 
         selected_gene = st.selectbox(
             "Germline gene",
-            options=germline_df["Gene"].tolist(),
+            germline_df["Gene"].tolist(),
             index=None,
             placeholder="Select a gene",
             key="germline_gene"
         )
 
         # -----------------------------------------
-        # View information button
+        # View information
         # -----------------------------------------
 
         if selected_gene:
@@ -785,11 +795,30 @@ def germline_lookup(excel_file):
                 key="germline_view_button"
             ):
 
-                st.session_state.germline_panel_open = True
-                st.session_state.germline_selected_gene = selected_gene
+                selected_row = germline_df[
+                    germline_df["Gene"] == selected_gene
+                ]
+
+                if not selected_row.empty:
+
+                    comment = str(
+                        selected_row.iloc[0]["Comment"]
+                    ).strip()
+
+                    st.session_state[
+                        "germline_selected_gene"
+                    ] = selected_gene
+
+                    st.session_state[
+                        "germline_selected_comment"
+                    ] = comment
+
+                    st.session_state[
+                        "germline_panel_open"
+                    ] = True
 
         # -----------------------------------------
-        # Right-hand information panel
+        # Display selected information
         # -----------------------------------------
 
         if st.session_state.get(
@@ -798,83 +827,43 @@ def germline_lookup(excel_file):
         ):
 
             panel_gene = st.session_state.get(
-                "germline_selected_gene"
+                "germline_selected_gene",
+                ""
             )
 
-            selected_row = germline_df[
-                germline_df["Gene"] == panel_gene
-            ]
+            panel_comment = st.session_state.get(
+                "germline_selected_comment",
+                ""
+            )
 
-            if not selected_row.empty:
+            st.markdown("---")
 
-                comment = str(
-                    selected_row.iloc[0]["Comment"]
-                ).strip()
+            st.markdown(
+                f"**{panel_gene}**"
+            )
 
-                st.markdown(
-                    """
-                    <style>
+            st.write(
+                panel_comment
+            )
 
-                    .germline-panel {
-                        position: fixed;
-                        top: 0;
-                        right: 0;
-                        width: 420px;
-                        height: 100vh;
-                        background-color: white;
-                        padding: 30px;
-                        box-shadow: -4px 0px 12px rgba(0,0,0,0.2);
-                        z-index: 999999;
-                        overflow-y: auto;
-                    }
+            if st.button(
+                "Close",
+                key="close_germline_panel"
+            ):
 
-                    .germline-title {
-                        color: #2E004F;
-                        font-size: 24px;
-                        font-weight: bold;
-                        margin-bottom: 20px;
-                    }
+                st.session_state[
+                    "germline_panel_open"
+                ] = False
 
-                    .germline-gene {
-                        color: #2E004F;
-                        font-size: 20px;
-                        font-weight: bold;
-                        margin-bottom: 15px;
-                    }
+                st.session_state[
+                    "germline_selected_gene"
+                ] = None
 
-                    </style>
-                    """,
-                    unsafe_allow_html=True
-                )
+                st.session_state[
+                    "germline_selected_comment"
+                ] = None
 
-                st.markdown(
-                    f"""
-                    <div class="germline-panel">
-
-                        <div class="germline-title">
-                            Germline information
-                        </div>
-
-                        <div class="germline-gene">
-                            {panel_gene}
-                        </div>
-
-                        <div>
-                            {comment}
-                        </div>
-
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-                if st.button(
-                    "Close",
-                    key="close_germline_panel"
-                ):
-
-                    st.session_state.germline_panel_open = False
-                    st.rerun()
+                st.rerun()
 
     except Exception as e:
 
