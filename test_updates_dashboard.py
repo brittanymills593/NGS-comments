@@ -3,7 +3,7 @@ import pandas as pd
 import dashboard_functions as df
 
 
-def run_new_dashboard():
+def run_test_dashboard():
 
     st.set_page_config(layout="wide")
 
