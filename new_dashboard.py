@@ -817,7 +817,8 @@ def run_new_dashboard():
                 "DDX41",
                 "RUNX1",
                 "BCL2",
-                "CALR"
+                "CALR",
+                "CEBPA"
             ]
             for gene in input_genes
         ):
@@ -906,6 +907,23 @@ def run_new_dashboard():
 
         st.markdown(
             "[Reference: CALR study](https://doi.org/10.1002/ajh.25065)"
+        )
+
+        st.markdown("")
+
+
+    # --- CEBPa Image ---
+    if "CEBPA" in input_genes:
+
+        st.markdown("#### CEBPA:")
+
+        st.image(
+            "CEBPA_image.png",
+            use_container_width=True
+        )
+
+        st.markdown(
+            "[Reference: CEBPA](https://www.nature.com/articles/s41375-024-02140-x)"
         )
 
         st.markdown("")
