@@ -812,23 +812,26 @@ def germline_lookup(excel_file):
         # -----------------------------------------
         # Floating right-hand panel
         # -----------------------------------------
-
+        
         if st.session_state.get(
             "germline_panel_open",
             False
         ):
-
+        
             panel_gene = st.session_state.get(
                 "germline_selected_gene",
                 ""
             )
-
+        
             panel_comment = st.session_state.get(
                 "germline_selected_comment",
                 ""
             )
-
-            # Panel
+        
+            # -----------------------------------------
+            # Floating panel
+            # -----------------------------------------
+        
             st.markdown(
                 f"""
                 <div style="
@@ -840,49 +843,55 @@ def germline_lookup(excel_file):
                     background: white;
                     padding: 30px;
                     box-shadow: -5px 0 15px rgba(0,0,0,0.15);
-                    z-index: 999999;
+                    z-index: 100;
                     overflow-y: auto;
                     box-sizing: border-box;
+                    pointer-events: none;
                 ">
-                    <h3 style="
-                        color: #2E004F;
-                        margin-top: 20px;
+        
+                    <div style="
+                        pointer-events: auto;
                     ">
-                        Germline information
-                    </h3>
-
-                    <h4>
-                        {panel_gene}
-                    </h4>
-
-                    <p style="
-                        line-height: 1.6;
-                    ">
-                        {panel_comment}
-                    </p>
+        
+                        <h3 style="
+                            color: #2E004F;
+                            margin-top: 20px;
+                        ">
+                            Germline information
+                        </h3>
+        
+                        <h4>
+                            {panel_gene}
+                        </h4>
+        
+                        <p style="
+                            line-height: 1.6;
+                        ">
+                            {panel_comment}
+                        </p>
+        
+                    </div>
+        
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-
-            # Close button needs to sit above the panel
+        
+            # -----------------------------------------
+            # Close button
+            # -----------------------------------------
+        
             close_col = st.empty()
-
+        
             with close_col:
-
+        
                 if st.button(
                     "Close",
                     key="close_germline_panel"
                 ):
-
+        
                     st.session_state.germline_panel_open = False
                     st.session_state.germline_selected_gene = ""
                     st.session_state.germline_selected_comment = ""
-
+        
                     st.rerun()
-
-    except Exception as e:
-
-        st.error(
-            f"Error loading Germline information: {e}"
-        )
