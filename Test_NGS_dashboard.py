@@ -4,7 +4,7 @@ st.set_page_config(layout="wide")
 
 from test_updates_dashboard import run_test_dashboard
 
-run_new_dashboard()
+run_test_dashboard()
 
 
 # import streamlit as st
