@@ -489,9 +489,11 @@ def run_test_dashboard():
             )
     
             # -------------------------------------------------
-            # Gene comments
-            # Only do this if genes have been entered
+            # Find matching gene comments
             # -------------------------------------------------
+    
+            filtered_rows = []
+            genes_without_comments = []
     
             if input_genes:
     
@@ -502,26 +504,42 @@ def run_test_dashboard():
                     )
                 )
     
+                # -------------------------------------------------
                 # Display genes without comments
+                # -------------------------------------------------
+    
                 for gene in genes_without_comments:
     
                     st.write(
                         f"No comment found for '{gene}'."
                     )
     
-                # Gene comments
-                if filtered_rows:
+            # -------------------------------------------------
+            # Process gene comments
+            # -------------------------------------------------
     
-                    filtered_df = pd.concat(
-                        filtered_rows,
-                        ignore_index=True
-                    )
+            filtered_df = None
+            grouped_comments = None
     
-                    grouped_comments = (
-                        df.group_similar_comments(
-                            filtered_df
-                        )
+            if filtered_rows:
+    
+                filtered_df = pd.concat(
+                    filtered_rows,
+                    ignore_index=True
+                )
+    
+                grouped_comments = (
+                    df.group_similar_comments(
+                        filtered_df
                     )
+                )
+    
+                # -------------------------------------------------
+                # For all diseases EXCEPT Myeloma:
+                # keep the existing display behaviour
+                # -------------------------------------------------
+    
+                if selected_disease != "Myeloma":
     
                     df.display_gene_comments(
                         filtered_df,
@@ -535,7 +553,38 @@ def run_test_dashboard():
             output_text = []
     
             # -------------------------------------------------
-            # Panel genes
+            # Myeloma-specific panel introduction
+            # -------------------------------------------------
+    
+            if selected_disease == "Myeloma":
+    
+                output_text.append(
+                    "Analysis on CD138+ cells:"
+                )
+    
+                # -------------------------------------------------
+                # Myeloma gene comments
+                # These go between the introduction and
+                # the negative panel
+                # -------------------------------------------------
+    
+                if filtered_df is not None and not filtered_df.empty:
+    
+                    myeloma_comments = (
+                        filtered_df["Relevant_comments"]
+                        .dropna()
+                        .astype(str)
+                        .str.strip()
+                        .drop_duplicates()
+                        .tolist()
+                    )
+    
+                    output_text.extend(
+                        myeloma_comments
+                    )
+    
+            # -------------------------------------------------
+            # Panel negative comment
             # -------------------------------------------------
     
             panel_comment = df.get_remaining_panel_genes(
@@ -543,9 +592,9 @@ def run_test_dashboard():
                 input_genes,
                 low_genes_upper
             )
-            
+    
             if panel_comment:
-            
+    
                 output_text.append(
                     panel_comment
                 )
