@@ -809,89 +809,89 @@ def germline_lookup(excel_file):
 
                     st.rerun()
 
+        # -----------------------------------------
+        # Floating right-hand panel
+        # -----------------------------------------
+
+        if st.session_state.get(
+            "germline_panel_open",
+            False
+        ):
+
+            panel_gene = st.session_state.get(
+                "germline_selected_gene",
+                ""
+            )
+
+            panel_comment = st.session_state.get(
+                "germline_selected_comment",
+                ""
+            )
+
             # -----------------------------------------
-            # Floating right-hand panel
+            # Floating panel
             # -----------------------------------------
-            
-            if st.session_state.get(
-                "germline_panel_open",
-                False
-            ):
-            
-                panel_gene = st.session_state.get(
-                    "germline_selected_gene",
-                    ""
-                )
-            
-                panel_comment = st.session_state.get(
-                    "germline_selected_comment",
-                    ""
-                )
-            
-                # -----------------------------------------
-                # Floating panel
-                # -----------------------------------------
-            
-                st.markdown(
-                    f"""
+
+            st.markdown(
+                f"""
+                <div style="
+                    position: fixed;
+                    top: 0;
+                    right: 0;
+                    width: 400px;
+                    height: 100vh;
+                    background: white;
+                    padding: 30px;
+                    box-shadow: -5px 0 15px rgba(0,0,0,0.15);
+                    z-index: 100;
+                    overflow-y: auto;
+                    box-sizing: border-box;
+                    pointer-events: none;
+                ">
+
                     <div style="
-                        position: fixed;
-                        top: 0;
-                        right: 0;
-                        width: 400px;
-                        height: 100vh;
-                        background: white;
-                        padding: 30px;
-                        box-shadow: -5px 0 15px rgba(0,0,0,0.15);
-                        z-index: 100;
-                        overflow-y: auto;
-                        box-sizing: border-box;
-                        pointer-events: none;
+                        pointer-events: auto;
                     ">
-            
-                        <div style="
-                            pointer-events: auto;
+
+                        <h3 style="
+                            color: #2E004F;
+                            margin-top: 20px;
                         ">
-            
-                            <h3 style="
-                                color: #2E004F;
-                                margin-top: 20px;
-                            ">
-                                Germline information
-                            </h3>
-            
-                            <h4>
-                                {panel_gene}
-                            </h4>
-            
-                            <p style="
-                                line-height: 1.6;
-                            ">
-                                {panel_comment}
-                            </p>
-            
-                        </div>
-            
+                            Germline information
+                        </h3>
+
+                        <h4>
+                            {panel_gene}
+                        </h4>
+
+                        <p style="
+                            line-height: 1.6;
+                        ">
+                            {panel_comment}
+                        </p>
+
                     </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-            
-                # -----------------------------------------
-                # Close button
-                # -----------------------------------------
-            
-                close_col = st.empty()
-            
-                with close_col:
-            
-                    if st.button(
-                        "Close",
-                        key="close_germline_panel"
-                    ):
-            
-                        st.session_state.germline_panel_open = False
-                        st.session_state.germline_selected_gene = ""
-                        st.session_state.germline_selected_comment = ""
-            
-                        st.rerun()
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # -----------------------------------------
+            # Close button
+            # -----------------------------------------
+
+            close_col = st.empty()
+
+            with close_col:
+
+                if st.button(
+                    "Close",
+                    key="close_germline_panel"
+                ):
+
+                    st.session_state.germline_panel_open = False
+                    st.session_state.germline_selected_gene = ""
+                    st.session_state.germline_selected_comment = ""
+
+                    st.rerun()
