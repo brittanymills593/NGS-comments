@@ -538,22 +538,14 @@ def run_test_dashboard():
             # Panel genes
             # -------------------------------------------------
     
-            panel_genes = df.get_remaining_panel_genes(
+            panel_comment = df.get_remaining_panel_genes(
                 selected_disease,
                 input_genes,
                 low_genes_upper
             )
-    
-            if panel_genes:
-    
-                panel_comment = (
-                    "No pathogenic/likely pathogenic variants "
-                    "were detected in the regions analysed "
-                    "within the "
-                    + panel_genes
-                    + " genes."
-                )
-    
+            
+            if panel_comment:
+            
                 output_text.append(
                     panel_comment
                 )
