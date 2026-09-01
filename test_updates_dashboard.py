@@ -472,25 +472,28 @@ def run_test_dashboard():
         uppercase=True
     )
 
-    # =========================================================
-    # GENE COMMENTS
-    # =========================================================
+# =========================================================
+# GENE COMMENTS
+# =========================================================
 
-    if selected_disease and input_genes:
+if selected_disease:
 
-        try:
+    try:
 
-            # -------------------------------------------------
-            # Load gene comments
-            # -------------------------------------------------
+        # -------------------------------------------------
+        # Load gene comments
+        # -------------------------------------------------
 
-            gene_df = df.load_gene_comments(
-                selected_disease
-            )
+        gene_df = df.load_gene_comments(
+            selected_disease
+        )
 
-            # -------------------------------------------------
-            # Find matching comments
-            # -------------------------------------------------
+        # -------------------------------------------------
+        # Gene comments
+        # Only do this if genes have been entered
+        # -------------------------------------------------
+
+        if input_genes:
 
             filtered_rows, genes_without_comments = (
                 df.filter_gene_comments(
@@ -499,20 +502,14 @@ def run_test_dashboard():
                 )
             )
 
-            # -------------------------------------------------
             # Display genes without comments
-            # -------------------------------------------------
-
             for gene in genes_without_comments:
 
                 st.write(
                     f"No comment found for '{gene}'."
                 )
 
-            # -------------------------------------------------
             # Gene comments
-            # -------------------------------------------------
-
             if filtered_rows:
 
                 filtered_df = pd.concat(
@@ -531,98 +528,90 @@ def run_test_dashboard():
                     grouped_comments
                 )
 
-            # =================================================
-            # FINAL REPORT TEXT
-            # =================================================
+        # =================================================
+        # FINAL REPORT TEXT
+        # =================================================
 
-            output_text = []
+        output_text = []
 
-            # -------------------------------------------------
-            # Panel genes
-            # -------------------------------------------------
+        # -------------------------------------------------
+        # Panel genes
+        # -------------------------------------------------
 
-            panel_genes = df.get_remaining_panel_genes(
-                selected_disease,
-                input_genes,
-                low_genes_upper
+        panel_genes = df.get_remaining_panel_genes(
+            selected_disease,
+            input_genes,
+            low_genes_upper
+        )
+
+        if panel_genes:
+
+            panel_comment = (
+                "No pathogenic/likely pathogenic variants "
+                "were detected in the regions analysed "
+                "within the "
+                + panel_genes
+                + " genes."
             )
 
-            if panel_genes:
+            output_text.append(
+                panel_comment
+            )
 
-                # Your Panel sheet contains the full
-                # standard introductory wording.
-                #
-                # The function returns the remaining
-                # gene list, so rebuild the standard text.
+        # -------------------------------------------------
+        # Medium / Low confidence caveats
+        # -------------------------------------------------
 
-                panel_comment = (
-                    "No pathogenic/likely pathogenic variants "
-                    "were detected in the regions analysed "
-                    "within the "
-                    + panel_genes
-                    + " genes."
-                )
+        confidence_comments = (
+            df.get_confidence_caveats(
+                medium_genes,
+                low_genes
+            )
+        )
 
-                output_text.append(
-                    panel_comment
-                )
+        output_text.extend(
+            confidence_comments
+        )
 
-            # -------------------------------------------------
-            # Medium / Low confidence caveats
-            # -------------------------------------------------
+        # -------------------------------------------------
+        # CLL CNV comment
+        # Deliberately LAST
+        # -------------------------------------------------
 
-            confidence_comments = (
-                df.get_confidence_caveats(
-                    medium_genes,
-                    low_genes
+        if (
+            selected_disease == "CLL"
+            and cll_comment
+        ):
+
+            output_text.append(
+                cll_comment
+            )
+
+        # ---------------------------------------------------------
+        # Myeloid caveat
+        # This is deliberately LAST
+        # ---------------------------------------------------------
+
+        if caveat_comment:
+
+            output_text.append(
+                caveat_comment
+            )
+
+        # -------------------------------------------------
+        # Display final text
+        # -------------------------------------------------
+
+        if output_text:
+
+            st.write(
+                "\n\n".join(
+                    output_text
                 )
             )
 
-            output_text.extend(
-                confidence_comments
-            )
+    except Exception as e:
 
-            # -------------------------------------------------
-            # CLL CNV comment
-            #
-            # Deliberately LAST
-            # -------------------------------------------------
-
-            if (
-                selected_disease == "CLL"
-                and cll_comment
-            ):
-
-                output_text.append(
-                    cll_comment
-                )
-
-
-            # ---------------------------------------------------------
-            # Myeloid caveat
-            # This is deliberately LAST
-            # ---------------------------------------------------------
-            
-            if caveat_comment:
-            
-                output_text.append(
-                    caveat_comment
-                )
-                
-            # -------------------------------------------------
-            # Display final text
-            # -------------------------------------------------
-
-            if output_text:
-
-                st.write(
-                    "\n\n".join(
-                        output_text
-                    )
-                )
-
-        except Exception as e:
-
-            st.error(
-                f"Error loading gene comments: {e}"
-            )
+        st.error(
+            f"Error loading gene comments: {e}"
+        )
