@@ -540,16 +540,10 @@ def get_remaining_panel_genes(
     low_genes_upper
 ):
     """
-    Return the remaining panel genes after removing
-    detected genes and low-confidence genes.
+    Return the full panel comment from the Panel sheet,
+    with detected genes and low-confidence genes removed.
 
-    The Panel sheet contains text in the format:
-
-    No pathogenic/likely pathogenic variants were detected
-    in the regions analysed within the GENE1, GENE2, GENE3 genes.
-
-    This function extracts only the gene list before
-    removing the detected and low-confidence genes.
+    Disease-specific introductory text is preserved.
     """
 
     panel_df = pd.read_excel(
@@ -579,51 +573,8 @@ def get_remaining_panel_genes(
         result.iloc[0]["Genes"]
     ).strip()
 
-    # ---------------------------------------------------------
-    # Identify the standard wording surrounding the gene list
-    # ---------------------------------------------------------
-
-    marker = (
-        "No pathogenic/likely pathogenic variants were detected "
-        "in the regions analysed within the "
-    )
-
-    if marker not in panel_text:
-        return panel_text
-
-    # Everything after the standard introductory wording
-    remainder = panel_text.split(
-        marker,
-        1
-    )[1]
-
-    # ---------------------------------------------------------
-    # Extract the gene list
-    # ---------------------------------------------------------
-
-    if " genes." in remainder:
-
-        gene_string = remainder.split(
-            " genes.",
-            1
-        )[0]
-
-    else:
-
-        # If the expected ending isn't present,
-        # return the original text rather than
-        # accidentally modifying it.
-        return panel_text
-
-    # ---------------------------------------------------------
-    # Convert gene string into a list
-    # ---------------------------------------------------------
-
-    panel_gene_list = [
-        gene.strip()
-        for gene in gene_string.split(",")
-        if gene.strip()
-    ]
+    if not panel_text:
+        return ""
 
     # ---------------------------------------------------------
     # Genes to remove
@@ -641,23 +592,77 @@ def get_remaining_panel_genes(
     }
 
     # ---------------------------------------------------------
+    # Find the gene list within the panel text
+    # ---------------------------------------------------------
+
+    marker = (
+        "No pathogenic/likely pathogenic variants were detected "
+        "in the regions analysed within the "
+    )
+
+    if marker not in panel_text:
+        return panel_text
+
+    before_gene_list, remainder = panel_text.split(
+        marker,
+        1
+    )
+
+    # ---------------------------------------------------------
+    # Extract the gene list and preserve everything else
+    # ---------------------------------------------------------
+
+    if " genes." in remainder:
+
+        gene_string, after_genes = remainder.split(
+            " genes.",
+            1
+        )
+
+    else:
+        return panel_text
+
+    panel_gene_list = [
+        gene.strip()
+        for gene in gene_string.split(",")
+        if gene.strip()
+    ]
+
+    # ---------------------------------------------------------
     # Remove detected / low-confidence genes
     # ---------------------------------------------------------
 
     panel_gene_list = [
         gene
         for gene in panel_gene_list
-        if gene.upper()
-        not in genes_to_remove
+        if gene.upper() not in genes_to_remove
     ]
 
     # ---------------------------------------------------------
-    # Return only the remaining gene list
+    # Rebuild the panel text
     # ---------------------------------------------------------
 
-    return ", ".join(
-        panel_gene_list
-    )
+    if panel_gene_list:
+
+        return (
+            before_gene_list
+            + marker
+            + ", ".join(panel_gene_list)
+            + " genes."
+            + after_genes
+        )
+
+    else:
+
+        # If all genes have been removed, don't leave
+        # "within the genes."
+        return (
+            before_gene_list
+            + marker.rstrip()
+            + "."
+            + after_genes
+        )
+
 
 
 def get_confidence_caveats(
