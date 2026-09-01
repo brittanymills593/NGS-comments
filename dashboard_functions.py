@@ -895,3 +895,9 @@ def germline_lookup(excel_file):
                     st.session_state.germline_selected_comment = ""
 
                     st.rerun()
+
+    except Exception as e:
+
+        st.error(
+            f"Error loading Germline information: {e}"
+        )
