@@ -833,8 +833,7 @@ def germline_lookup(excel_file):
             # -----------------------------------------
 
             st.markdown(
-                f"""
-                <div style="
+                f"""<div style="
                     position: fixed;
                     top: 0;
                     right: 0;
@@ -843,37 +842,30 @@ def germline_lookup(excel_file):
                     background: white;
                     padding: 30px;
                     box-shadow: -5px 0 15px rgba(0,0,0,0.15);
-                    z-index: 100;
+                    z-index: 999999;
                     overflow-y: auto;
+                    overflow-x: hidden;
                     box-sizing: border-box;
-                    pointer-events: none;
                 ">
 
-                    <div style="
-                        pointer-events: auto;
+                    <h3 style="
+                        color: #2E004F;
+                        margin-top: 20px;
                     ">
+                        Germline information
+                    </h3>
 
-                        <h3 style="
-                            color: #2E004F;
-                            margin-top: 20px;
-                        ">
-                            Germline information
-                        </h3>
+                    <h4>
+                        {panel_gene}
+                    </h4>
 
-                        <h4>
-                            {panel_gene}
-                        </h4>
+                    <p style="
+                        line-height: 1.6;
+                    ">
+                        {panel_comment}
+                    </p>
 
-                        <p style="
-                            line-height: 1.6;
-                        ">
-                            {panel_comment}
-                        </p>
-
-                    </div>
-
-                </div>
-                """,
+                </div>""",
                 unsafe_allow_html=True
             )
 
