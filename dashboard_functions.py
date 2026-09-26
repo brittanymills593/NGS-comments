@@ -831,7 +831,10 @@ def germline_lookup(excel_file):
             # -----------------------------------------
             # Floating panel
             # -----------------------------------------
-
+            
+            # Remove Markdown code fences if they are present in the germline comment
+            clean_panel_comment = panel_comment.replace("```html", "").replace("```", "").strip()
+            
             st.markdown(
                 f"""<div style="
                     position: fixed;
@@ -847,24 +850,24 @@ def germline_lookup(excel_file):
                     overflow-x: hidden;
                     box-sizing: border-box;
                 ">
-
+            
                     <h3 style="
                         color: #2E004F;
                         margin-top: 20px;
                     ">
                         Germline information
                     </h3>
-
+            
                     <h4>
                         {panel_gene}
                     </h4>
-
-                    <p style="
+            
+                    <div style="
                         line-height: 1.6;
                     ">
-                        {panel_comment}
-                    </p>
-
+                        {clean_panel_comment}
+                    </div>
+            
                 </div>""",
                 unsafe_allow_html=True
             )
