@@ -832,51 +832,32 @@ def germline_lookup(excel_file):
             # Floating panel
             # -----------------------------------------
             
-            import textwrap
-            
-            # Remove Markdown code fences from the comment if present
-            clean_panel_comment = str(panel_comment).replace("```html", "").replace("```", "").strip()
-            
-            floating_panel = f"""
-            <div style="
-                position: fixed;
-                top: 0;
-                right: 0;
-                width: 400px;
-                height: 100vh;
-                background: white;
-                padding: 30px;
-                box-shadow: -5px 0 15px rgba(0,0,0,0.15);
-                z-index: 999999;
-                overflow-y: auto;
-                overflow-x: hidden;
-                box-sizing: border-box;
-            ">
-            
-                <h3 style="
-                    color: #2E004F;
-                    margin-top: 20px;
-                ">
-                    Germline information
-                </h3>
-            
-                <h4>
-                    {panel_gene}
-                </h4>
-            
-                <div style="
-                    line-height: 1.6;
-                ">
-                    {clean_panel_comment}
-                </div>
-            
-            </div>
-            """
-            
             st.markdown(
-                textwrap.dedent(floating_panel),
+                """
+                <style>
+                .germline-panel {
+                    position: fixed;
+                    top: 0;
+                    right: 0;
+                    width: 400px;
+                    height: 100vh;
+                    background: white;
+                    padding: 30px;
+                    box-shadow: -5px 0 15px rgba(0,0,0,0.15);
+                    z-index: 999999;
+                    overflow-y: auto;
+                    box-sizing: border-box;
+                }
+                </style>
+                """,
                 unsafe_allow_html=True
             )
+            
+            # Display the popup
+            with st.container():
+                st.subheader("Germline information")
+                st.markdown(f"**{panel_gene}**")
+                st.write(panel_comment)
             
             # -----------------------------------------
             # Close button
