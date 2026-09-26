@@ -832,11 +832,19 @@ def germline_lookup(excel_file):
             # Floating panel
             # -----------------------------------------
             
-            # Remove Markdown code fences if they are present in the germline comment
-            clean_panel_comment = panel_comment.replace("```html", "").replace("```", "").strip()
+            import re
+            import html
+            
+            # Clean the germline comment so that any HTML/code formatting
+            # stored in the Excel cell is removed before displaying it
+            clean_panel_comment = re.sub(r"```(?:html)?", "", str(panel_comment))
+            clean_panel_comment = re.sub(r"<[^>]+>", " ", clean_panel_comment)
+            clean_panel_comment = html.unescape(clean_panel_comment)
+            clean_panel_comment = re.sub(r"\s+", " ", clean_panel_comment).strip()
             
             st.markdown(
-                f"""<div style="
+                f"""
+                <div style="
                     position: fixed;
                     top: 0;
                     right: 0;
@@ -859,19 +867,19 @@ def germline_lookup(excel_file):
                     </h3>
             
                     <h4>
-                        {panel_gene}
+                        {html.escape(str(panel_gene))}
                     </h4>
             
-                    <div style="
+                    <p style="
                         line-height: 1.6;
                     ">
-                        {clean_panel_comment}
-                    </div>
+                        {html.escape(clean_panel_comment)}
+                    </p>
             
-                </div>""",
+                </div>
+                """,
                 unsafe_allow_html=True
             )
-
             # -----------------------------------------
             # Close button
             # -----------------------------------------
