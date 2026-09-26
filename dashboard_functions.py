@@ -832,59 +832,60 @@ def germline_lookup(excel_file):
             # Floating panel
             # -----------------------------------------
             
-            import re
-            
-            # Remove any HTML tags from the Excel comment
-            clean_panel_comment = re.sub(r"<[^>]*>", "", str(panel_comment))
-            
-            # Clean up excessive whitespace
-            clean_panel_comment = re.sub(r"\n\s*\n", "\n\n", clean_panel_comment).strip()
-            
-            # Floating panel
-            st.markdown(
+            st.html(
                 f"""
-                <div style="
-                    position: fixed;
-                    top: 0;
-                    right: 0;
-                    width: 400px;
-                    height: 100vh;
-                    background: white;
-                    padding: 30px;
-                    box-shadow: -5px 0 15px rgba(0,0,0,0.15);
-                    z-index: 999999;
-                    overflow-y: auto;
-                    overflow-x: hidden;
-                    box-sizing: border-box;
-                ">
+                <style>
+                    .germline-panel {{
+                        position: fixed;
+                        top: 0;
+                        right: 0;
+                        width: 400px;
+                        height: 100vh;
+                        background: white;
+                        padding: 30px;
+                        box-shadow: -5px 0 15px rgba(0,0,0,0.15);
+                        z-index: 999999;
+                        overflow-y: auto;
+                        overflow-x: hidden;
+                        box-sizing: border-box;
+                    }}
             
-                    <div style="
+                    .germline-title {{
                         color: #2E004F;
                         font-size: 22px;
                         font-weight: 600;
                         margin-bottom: 20px;
-                    ">
-                        Germline information
-                    </div>
+                    }}
             
-                    <div style="
+                    .germline-gene {{
                         font-size: 18px;
                         font-weight: 600;
                         margin-bottom: 15px;
-                    ">
+                    }}
+            
+                    .germline-comment {{
+                        font-size: 16px;
+                        line-height: 1.6;
+                        white-space: pre-wrap;
+                    }}
+                </style>
+            
+                <div class="germline-panel">
+            
+                    <div class="germline-title">
+                        Germline information
+                    </div>
+            
+                    <div class="germline-gene">
                         {panel_gene}
                     </div>
             
-                    <div style="
-                        font-size: 16px;
-                        line-height: 1.6;
-                    ">
-                        {clean_panel_comment}
+                    <div class="germline-comment">
+                        {panel_comment}
                     </div>
             
                 </div>
-                """,
-                unsafe_allow_html=True
+                """
             )
             
             # -----------------------------------------
