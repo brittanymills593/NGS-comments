@@ -399,26 +399,28 @@ def run_test_dashboard():
                 "Comment"
             ]
     
-            lymphoid_cnv_df["Infiltration"] = (
-                lymphoid_cnv_df["Infiltration"]
-                .fillna("")
-                .astype(str)
-                .str.strip()
-            )
+            # -------------------------------------------------
+            # Clean text
+            # -------------------------------------------------
     
-            lymphoid_cnv_df["CNV"] = (
-                lymphoid_cnv_df["CNV"]
-                .fillna("")
-                .astype(str)
-                .str.strip()
-            )
+            for column in [
+                "Infiltration",
+                "CNV",
+                "Comment"
+            ]:
     
-            lymphoid_cnv_df["Comment"] = (
-                lymphoid_cnv_df["Comment"]
-                .fillna("")
-                .astype(str)
-                .str.strip()
-            )
+                lymphoid_cnv_df[column] = (
+                    lymphoid_cnv_df[column]
+                    .fillna("")
+                    .astype(str)
+                    .str.replace("\u00a0", " ", regex=False)
+                    .str.replace(r"\s+", " ", regex=True)
+                    .str.strip()
+                )
+    
+            # -------------------------------------------------
+            # Infiltration options
+            # -------------------------------------------------
     
             infiltration_options = [
                 value
@@ -478,17 +480,30 @@ def run_test_dashboard():
     
                     if selected_cnvs:
     
+                        # Normalise the selected values too
+                        selected_cnvs_clean = [
+                            str(cnv)
+                            .replace("\u00a0", " ")
+                            .strip()
+                            for cnv in selected_cnvs
+                        ]
+    
                         selected_cnv_rows = matching_cnv_df[
                             matching_cnv_df["CNV"].isin(
-                                selected_cnvs
+                                selected_cnvs_clean
                             )
                         ]
     
+                        comments = (
+                            selected_cnv_rows["Comment"]
+                            .dropna()
+                            .astype(str)
+                            .str.strip()
+                        )
+    
                         comments = [
                             comment
-                            for comment in selected_cnv_rows[
-                                "Comment"
-                            ]
+                            for comment in comments
                             if comment
                         ]
     
@@ -511,6 +526,7 @@ def run_test_dashboard():
             st.error(
                 f"Error loading lymphoid CNV information: {e}"
             )
+
 
     # =========================================================
     # MYELOID LOOKUPS
