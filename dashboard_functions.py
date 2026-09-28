@@ -300,11 +300,82 @@ def parse_comma_separated_input(text, uppercase=False):
 
     return values
 
+
 def load_gene_comments(disease):
     """
     Load gene comments and Mode information
     from the selected disease Excel sheet.
+
+    For B and T lymphoid, comments are loaded from
+    both the B lymphoid and T lymphoid sheets.
     """
+
+    # =========================================================
+    # B AND T LYMPHOID
+    # Search both B lymphoid and T lymphoid sheets
+    # =========================================================
+
+    if disease == "B and T lymphoid":
+
+        dfs = []
+
+        for sheet in ["B lymphoid", "T lymphoid"]:
+
+            sheet_df = pd.read_excel(
+                EXCEL_FILE,
+                sheet_name=sheet,
+                usecols="A:B"
+            )
+
+            sheet_df.columns = [
+                "Gene",
+                "Relevant_comments"
+            ]
+
+            # Ensure Gene and comments are strings
+            sheet_df["Gene"] = (
+                sheet_df["Gene"]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+            )
+
+            sheet_df["Relevant_comments"] = (
+                sheet_df["Relevant_comments"]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+            )
+
+            # Load Mode column
+            try:
+
+                mode_df = pd.read_excel(
+                    EXCEL_FILE,
+                    sheet_name=sheet,
+                    usecols="C"
+                )
+
+                sheet_df["Mode"] = (
+                    mode_df.iloc[:, 0]
+                    .fillna("")
+                    .astype(str)
+                    .str.strip()
+                )
+
+            except Exception:
+
+                sheet_df["Mode"] = ""
+
+            dfs.append(sheet_df)
+
+        # Combine B lymphoid and T lymphoid
+        df = pd.concat(
+            dfs,
+            ignore_index=True
+        )
+
+        return df
 
     df = pd.read_excel(
         EXCEL_FILE,
@@ -353,6 +424,7 @@ def load_gene_comments(disease):
         df["Mode"] = ""
 
     return df
+
 
 def filter_gene_comments(df, input_genes):
     """
