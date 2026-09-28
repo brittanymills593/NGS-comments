@@ -13,7 +13,7 @@ def run_test_dashboard():
 
     EXCEL_FILE = "NGS_comments_automation_further_review.xlsx"
 
-    DISEASE_SHEETS = [
+    MYELOID_DISEASES = [
         "AML",
         "MDS",
         "MPN",
@@ -21,15 +21,18 @@ def run_test_dashboard():
         "CMML",
         "JMML",
         "Myeloid generic",
-        "MDS unconfirmed",
         "MPN unconfirmed",
+        "MDS unconfirmed",
+        "Systemic mastocytosis",
+        "Histiocytic disorders",
+    ]
+    
+    LYMPHOID_DISEASES = [
         "B lymphoid",
         "T lymphoid",
         "B and T lymphoid",
         "CLL",
         "Myeloma",
-        "Histiocytic disorders",
-        "Systemic mastocytosis",
     ]
 
     DISEASE_TO_PANEL = {
@@ -158,12 +161,88 @@ def run_test_dashboard():
             st.rerun()
 
     # =========================================================
+    # DISEASE GROUP SELECTION
+    # =========================================================
+    
+    if "disease_group" not in st.session_state:
+        st.session_state.disease_group = "Myeloid"
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+    
+        myeloid_selected = st.checkbox(
+            "Myeloid",
+            value=st.session_state.disease_group == "Myeloid"
+        )
+    
+    with col2:
+    
+        lymphoid_selected = st.checkbox(
+            "Lymphoid",
+            value=st.session_state.disease_group == "Lymphoid"
+        )
+    
+    # ---------------------------------------------------------
+    # Only allow one group to be selected
+    # ---------------------------------------------------------
+    
+    if myeloid_selected and not lymphoid_selected:
+    
+        st.session_state.disease_group = "Myeloid"
+    
+    elif lymphoid_selected and not myeloid_selected:
+    
+        st.session_state.disease_group = "Lymphoid"
+    
+    elif myeloid_selected and lymphoid_selected:
+    
+        # Keep the previously selected group
+        if st.session_state.disease_group == "Myeloid":
+            lymphoid_selected = False
+        else:
+            myeloid_selected = False
+    
+    else:
+    
+        # Don't allow both boxes to be unchecked
+        if st.session_state.disease_group == "Myeloid":
+            myeloid_selected = True
+        else:
+            lymphoid_selected = True
+    
+    # =========================================================
     # DISEASE SELECTION
     # =========================================================
-
+    
+    if st.session_state.disease_group == "Myeloid":
+    
+        available_diseases = MYELOID_DISEASES
+    
+    else:
+    
+        available_diseases = LYMPHOID_DISEASES
+    
+    # Keep the currently selected disease if it is still
+    # available in the selected disease group
+    
+    if (
+        "previous_disease" in st.session_state
+        and st.session_state.previous_disease in available_diseases
+    ):
+    
+        disease_index = available_diseases.index(
+            st.session_state.previous_disease
+        )
+    
+    else:
+    
+        disease_index = 0
+    
     selected_disease = st.selectbox(
         "Select Disease Type",
-        DISEASE_SHEETS
+        available_diseases,
+        index=disease_index
     )
 
     # =========================================================
@@ -274,86 +353,110 @@ def run_test_dashboard():
             key="low_gene_input"
         )
 
-    # =========================================================
-    # CLL INFILTRATION / CNV
-    # =========================================================
 
+    # =========================================================
+    # LYMPHOID INFILTRATION / CNV
+    # =========================================================
+    
     cll_comment = ""
-
-    if selected_disease == "CLL":
-
+    
+    LYMPHOID_CNV_DISEASES = [
+        "CLL",
+        "B lymphoid",
+        "T lymphoid",
+        "B and T lymphoid",
+    ]
+    
+    if selected_disease in LYMPHOID_CNV_DISEASES:
+    
         try:
-
-            cll_cnv_df = pd.read_excel(
+    
+            # -------------------------------------------------
+            # Select the appropriate CNV sheet
+            # -------------------------------------------------
+    
+            if selected_disease == "CLL":
+    
+                cnv_sheet = "CLL CNV"
+    
+            else:
+    
+                cnv_sheet = "CNV lymphoid"
+    
+            # -------------------------------------------------
+            # Load CNV information
+            # -------------------------------------------------
+    
+            lymphoid_cnv_df = pd.read_excel(
                 EXCEL_FILE,
-                sheet_name="CLL CNV",
+                sheet_name=cnv_sheet,
                 usecols="A:C"
             )
-
-            cll_cnv_df.columns = [
+    
+            lymphoid_cnv_df.columns = [
                 "Infiltration",
                 "CNV",
                 "Comment"
             ]
-
-            cll_cnv_df["Infiltration"] = (
-                cll_cnv_df["Infiltration"]
+    
+            lymphoid_cnv_df["Infiltration"] = (
+                lymphoid_cnv_df["Infiltration"]
                 .fillna("")
                 .astype(str)
                 .str.strip()
             )
-
-            cll_cnv_df["CNV"] = (
-                cll_cnv_df["CNV"]
+    
+            lymphoid_cnv_df["CNV"] = (
+                lymphoid_cnv_df["CNV"]
                 .fillna("")
                 .astype(str)
                 .str.strip()
             )
-
-            cll_cnv_df["Comment"] = (
-                cll_cnv_df["Comment"]
+    
+            lymphoid_cnv_df["Comment"] = (
+                lymphoid_cnv_df["Comment"]
                 .fillna("")
                 .astype(str)
                 .str.strip()
             )
-
+    
             infiltration_options = [
                 value
-                for value in cll_cnv_df[
+                for value in lymphoid_cnv_df[
                     "Infiltration"
                 ].unique()
                 if value
             ]
-
+    
             col1, col2 = st.columns(2)
-
+    
             # -------------------------------------------------
             # Infiltration
             # -------------------------------------------------
-
+    
             with col1:
-
+    
                 infiltration = st.selectbox(
                     "Infiltration (immunophenotyping)",
                     options=infiltration_options,
                     index=None,
                     placeholder="Select infiltration",
-                    key="cll_infiltration"
+                    key=f"{selected_disease}_infiltration"
                 )
-
+    
             # -------------------------------------------------
             # CNVs
             # -------------------------------------------------
-
+    
             with col2:
-
+    
                 if infiltration:
-
-                    matching_cnv_df = cll_cnv_df[
-                        cll_cnv_df["Infiltration"]
+    
+                    matching_cnv_df = lymphoid_cnv_df[
+                        lymphoid_cnv_df["Infiltration"]
                         == infiltration
                     ]
-
+    
                     cnv_options = [
                         value
                         for value in matching_cnv_df[
@@ -361,26 +464,26 @@ def run_test_dashboard():
                         ].unique()
                         if value
                     ]
-
+    
                     selected_cnvs = st.multiselect(
                         "CNV(s) present",
                         options=cnv_options,
                         placeholder="Select one or more CNVs",
-                        key="cll_cnvs"
+                        key=f"{selected_disease}_cnvs"
                     )
-
+    
                     # -------------------------------------------------
                     # Retrieve comments for all selected CNVs
                     # -------------------------------------------------
-
+    
                     if selected_cnvs:
-
+    
                         selected_cnv_rows = matching_cnv_df[
                             matching_cnv_df["CNV"].isin(
                                 selected_cnvs
                             )
                         ]
-
+    
                         comments = [
                             comment
                             for comment in selected_cnv_rows[
@@ -388,44 +491,31 @@ def run_test_dashboard():
                             ]
                             if comment
                         ]
-
+    
                         cll_comment = "\n\n".join(
                             comments
                         )
-
+    
                 else:
-
+    
                     st.multiselect(
                         "CNV(s) present",
                         options=[],
                         placeholder="Select infiltration first",
                         disabled=True,
-                        key="cll_cnvs_disabled"
+                        key=f"{selected_disease}_cnvs_disabled"
                     )
-
+    
         except Exception as e:
-
+    
             st.error(
-                f"Error loading CLL CNV information: {e}"
+                f"Error loading lymphoid CNV information: {e}"
             )
 
     # =========================================================
     # MYELOID LOOKUPS
     # =========================================================
-    
-    MYELOID_DISEASES = [
-        "AML",
-        "MDS",
-        "MPN",
-        "MPN limited",
-        "CMML",
-        "JMML",
-        "Myeloid generic",
-        "MDS unconfirmed",
-        "MPN unconfirmed",
-        "Systemic mastocytosis",
-    ]
-    
+        
     caveat_comment = ""
     
     if selected_disease in MYELOID_DISEASES:
